@@ -1,16 +1,14 @@
 import './App.css';
 import { Button } from '@mui/material';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import CallBack from './CallBack';
 import ApplyJobPage from './ApplyJobPage';
+import { AZURE_AD_OAUTH2_KEY, AZURE_AD_OAUTH2_TENANT_ID, LOGIN_REDIRECT_URL, SERVER_URL } from './constants';
 
 function App() {
-  const AZURE_AD_OAUTH2_KEY = 'bb046ee1-5e34-4edc-ac10-e8b97af6b1a3';
-  const AZURE_AD_OAUTH2_TENANT_ID = '1c9e4779-2275-4723-8cb1-d0bfc508bb07';
-  const LOGIN_REDIRECT_URL = 'http://localhost:8000/callback';
-  const serverUrl = 'http://localhost:5000';
+
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -18,7 +16,7 @@ function App() {
 	useEffect(() => {
 		const token = localStorage.getItem('aToken');
     if (token) {
-      axios.get(`${serverUrl}/auth/get/user/`, {
+      axios.get(`${SERVER_URL}/auth/get/user/`, {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
@@ -28,6 +26,7 @@ function App() {
         const { name, email } = response.data;
         localStorage.setItem('aName', name);
         setName(name);
+        setEmail(email);
         const pathname = window.location.pathname;
         if (!pathname.includes('applyjob'))
           window.location = '/applyjob';

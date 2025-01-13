@@ -39,9 +39,13 @@ class GetUserView(generics.GenericAPIView):
         token = auth_header.split(" ")[1]
         decoded = jwt.decode(token, options={'verify_signature': False})
         email = decoded['unique_name']
+        name = decoded['name']
         userinfo = UserInfo.objects.filter(email=email).first()
         if not userinfo:
-            userinfo = UserInfo(email=email)
+            userinfo = UserInfo(
+                email=email,
+                name=name,
+            )
             userinfo.save()
         name = decoded['name']
-        return Response({'name': name}, status=http_status.HTTP_200_OK)
+        return Response({'name': name, 'email': email}, status=http_status.HTTP_200_OK)

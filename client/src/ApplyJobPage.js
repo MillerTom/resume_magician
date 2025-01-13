@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Button } from '@mui/material';
+import { SERVER_URL } from './constants';
+import { formatDate } from './utils';
 
 function ApplyJobPage({ name, email }) {
-	const serverUrl = 'http://localhost:5000';
-
 	const token = localStorage.getItem('aToken');
 	const [isApplyPage, setIsApplyPage] = useState(false);
+	const [backlog, setBacklog] = useState({});
+	const [leaderboard, setLeaderboard] = useState([]);
 	const [job, setJob] = useState({});
 	const [jobIndex, setJobIndex] = useState(-1);
 	const [isPendingApply, setIsPendingApply] = useState(false);
@@ -14,15 +16,17 @@ function ApplyJobPage({ name, email }) {
 	const [loading, setLoading] = useState(false);
 
 	const getNewJob = () => {
-		axios.post(`${serverUrl}/job/get/records/`, {startPage: 0}, {
+		axios.post(`${SERVER_URL}/job/get/records/`, {startPage: 0}, {
 			headers: {
 				'Content-Type': 'application/json',
 				'Authorization': `Bearer ${token}`
 			},
 		})
 		.then((response) => {
-			const { job } = response.data;
-			setJob(job)
+			const { job, backlog, leaderboard } = response.data;
+			setJob(job);
+			setBacklog(backlog);
+			setLeaderboard(leaderboard);
 		})
 		.catch((error) => {
 			console.log('---', error);
@@ -36,6 +40,12 @@ function ApplyJobPage({ name, email }) {
   return (
     <div style={{display: 'flex', height: 'calc(100vh - 64px)'}}>
 			<div style={{width: '240px', padding: '16px', borderRight: '1px solid lightblue'}}>
+				<Button
+					style={{width: '100%', justifyContent: 'flex-start', color: 'black'}}
+					onClick={() => {setIsApplyPage(false);}}
+				>
+					LOG
+				</Button>
 				<Button
 					style={{width: '100%', justifyContent: 'flex-start', color: 'black'}}
 					onClick={() => {setIsApplyPage(true);}}
@@ -58,7 +68,7 @@ function ApplyJobPage({ name, email }) {
 											setStartedAt((new Date()).toString());
 											window.open(job.jobUrl, '_blank');
 	
-											axios.post(`${serverUrl}/job/start/`, {jobUrl: job.jobUrl, email}, {
+											axios.post(`${SERVER_URL}/job/start/`, {jobUrl: job.jobUrl, email}, {
 												headers: {
 													'Content-Type': 'application/json',
 													'Authorization': `Bearer ${token}`
@@ -66,7 +76,6 @@ function ApplyJobPage({ name, email }) {
 											})
 											.then((response) => {
 												const { jobIndex } = response.data;
-												console.log(jobIndex)
 												setJobIndex(jobIndex);
 											})
 											.catch((error) => {
@@ -77,7 +86,7 @@ function ApplyJobPage({ name, email }) {
 											setJobIndex(-1);
 											setLoading(true);
 	
-											axios.post(`${serverUrl}/job/applied/`, {
+											axios.post(`${SERVER_URL}/job/applied/`, {
 												jobIndex,
 												email,
 												jobUrl: job.jobUrl,
@@ -112,11 +121,24 @@ function ApplyJobPage({ name, email }) {
 								<Button color='error'>Reject Job</Button>
 							</div>
 							{isPendingApply ? (
-								<p style={{fontSize: '18px'}}>Job Apply Started At: {startedAt}</p>
+								<p style={{fontSize: '18px'}}>Job Apply Started At: <strong>{formatDate(new Date(startedAt))}</strong></p>
 							) : ''}
 						</>
 					) : 'Loading...'
-				): (<span>Homepage</span>)}
+				): (<div>
+					<h3>BACKLOG METRICS</h3>
+					{
+						Object.keys(backlog).map(item => (
+							<span style={{display: 'block'}}>{item} jobs not applied for: <strong>{backlog[item]}</strong></span>
+						))
+					}
+					<h3>LEADERBOARD</h3>
+					{
+						leaderboard.map(item => (
+							<span>User {item.name.split(' ')[0]} has applied for <strong>{item.num_applied_jobs}</strong> jobs</span>
+						))
+					}
+				</div>)}
 			</div>
     </div>
   );

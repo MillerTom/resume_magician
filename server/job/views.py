@@ -29,7 +29,13 @@ class GetJobRecordsView(generics.GenericAPIView):
         data = sheet.get_all_values()
         df = pd.DataFrame(data[1:], columns=data[0])
         df = df.fillna('')
-        df = df[(df['AppliedForDate'] == '') & (df['Lock'] == '')]
+        df = df[(df['AppliedForDate'] == '') & (df['Lock'] == '') & (df['Easy Apply'] == 'EXTERNAL')]
+
+        backlog = {}
+        skills = df['Skill'].tolist()
+        skills = list(set(skills))
+        for skill in skills:
+            backlog[skill] = len(df[df['Skill'] == skill])
         df.sort_values(by='Priority', ascending=True, inplace=True)
         current_job = df.iloc[0].to_dict()
         job = {
@@ -38,6 +44,21 @@ class GetJobRecordsView(generics.GenericAPIView):
             'datePosted': current_job['Posted At'],
             'resume': current_job['Customized Resume']
         }
+
+        # jobs = Job.objects.all()
+        # for job in jobs:
+        #     print(job.user)
+
+        leaderboard = []
+        userinfos = UserInfo.objects.all()
+        for userinfo in userinfos:
+            jobs = Job.objects.filter(user=userinfo).all()
+            leaderboard.append({
+                'name': userinfo.name,
+                'email': userinfo.email,
+                'num_applied_jobs': len(jobs),
+            })
+
         # jobs = []
         # for index, row in df.iterrows():
         #     jobs.append({
@@ -46,7 +67,7 @@ class GetJobRecordsView(generics.GenericAPIView):
         #         'datePosted': row['Posted At'],
         #         'resume': row['Customized Resume'],
         #     })
-        return Response({'job': job}, status=http_status.HTTP_200_OK)
+        return Response({'job': job, 'backlog': backlog, 'leaderboard': leaderboard}, status=http_status.HTTP_200_OK)
 
 
 class JobApplyStartView(generics.GenericAPIView):
