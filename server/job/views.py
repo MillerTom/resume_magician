@@ -29,7 +29,7 @@ class GetJobRecordsView(generics.GenericAPIView):
         data = sheet.get_all_values()
         df = pd.DataFrame(data[1:], columns=data[0])
         df = df.fillna('')
-        df = df[(df['AppliedForDate'] == '') & (df['Lock'] == '') & (df['Easy Apply'] == 'EXTERNAL')]
+        df = df[(df['AppliedForDate'] == '') & (df['Lock'] == '') & (df['Easy Apply'] != 'TRUE')]
 
         backlog = {}
         skills = df['Skill'].tolist()

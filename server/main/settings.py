@@ -12,6 +12,11 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 import os
 from pathlib import Path
+import os
+import environ
+
+env = environ.Env()
+environ.Env.read_env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -45,7 +50,7 @@ CORS_ORIGIN_ALLOW_ALL=True
 SPREAD_SHEET_ID = '1Bb1Fp_QXdU0j5j44rTSITYhYhdrZLnN6h0dFkRH3uaE'
 SHEET_ID = 1873939085
 GOOGLE_SHEET_NAME = 'dev Copy of JobScraper Dylan'
-CREDENTIALS_PATH = '/var/www/ApplyJobsForeverPortal/server/auth/credentials.json'
+CREDENTIALS_PATH = env.str('CREDENTIALS_PATH')
 JOB_URL_COLUMN_INDEX = 13
 LOCK_COLUMN_INDEX = 27
 STARTED_AT_COLUMN_INDEX = 28
@@ -58,7 +63,7 @@ AZURE_AD_OAUTH2_SECRET = 'FTQ8Q~PqM37Zh-jys7~EiMdzLYbvG4nwZs4MRcQW'  # Client se
 AZURE_AD_OAUTH2_TENANT_ID = '1c9e4779-2275-4723-8cb1-d0bfc508bb07'  # Directory (tenant) ID
 
 # Redirect URI (same as in Azure AD configuration)
-LOGIN_REDIRECT_URL = 'http://localhost:8000/callback'
+LOGIN_REDIRECT_URL = env.str('LOGIN_REDIRECT_URL')
 LOGIN_ERROR_URL = '/login-error/'
 REDIRECT_IS_HTTPS = True
 
@@ -118,8 +123,12 @@ WSGI_APPLICATION = 'main.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'db_applyjobforever',  # The name of the PostgreSQL database
+        'USER': 'applyjobforever',  # The PostgreSQL user
+        'PASSWORD': '(2.39-0ubuntu8.3',  # The PostgreSQL user's password
+        'HOST': 'localhost',  # Or the IP address of your database server
+        'PORT': '5432',  # Default port for PostgreSQL
     }
 }
 
