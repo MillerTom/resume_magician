@@ -5,4 +5,4 @@ export const AZURE_AD_OAUTH2_TENANT_ID = '1c9e4779-2275-4723-8cb1-d0bfc508bb07';
 // export const SERVER_URL = 'http://localhost:5000';
 
 export const LOGIN_REDIRECT_URL = 'https://3.92.177.163/callback';
-export const SERVER_URL = 'http://3.92.177.163';
+export const SERVER_URL = 'https://3.92.177.163/api';
