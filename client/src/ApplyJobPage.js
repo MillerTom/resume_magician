@@ -137,8 +137,8 @@ function ApplyJobPage({ name, email }) {
 											})
 										} else {
 											setIsPendingApply(false);
-											setJobIndex(-1);
 											setLoading(true);
+											console.log('jobIndex', jobIndex);
 	
 											axios.post(`${SERVER_URL}/job/applied/`, {
 												jobIndex,
@@ -158,6 +158,7 @@ function ApplyJobPage({ name, email }) {
 												alert(`It took ${differenceInMinutes} minutes to complete that job application.`);
 												getNewJob();
 												setLoading(false);
+												setJobIndex(-1);
 											})
 											.catch((error) => {
 												console.log('---', error);
