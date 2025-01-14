@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Button } from '@mui/material';
+import { Button, TextField } from '@mui/material';
 import { SERVER_URL } from './constants';
 import { formatDate } from './utils';
 
@@ -14,8 +14,11 @@ function ApplyJobPage({ name, email }) {
 	const [isPendingApply, setIsPendingApply] = useState(false);
 	const [startedAt, setStartedAt] = useState('');
 	const [loading, setLoading] = useState(false);
+	const [rejection, setRejection] = useState({isRejection: false, content: ''});
+	const [jobDescripton, setJobDescription] = useState({isReadmore: true, content: ''});
 
 	const getNewJob = () => {
+		setJob({});
 		axios.post(`${SERVER_URL}/job/get/records/`, {startPage: 0}, {
 			headers: {
 				'Content-Type': 'application/json',
@@ -25,6 +28,7 @@ function ApplyJobPage({ name, email }) {
 		.then((response) => {
 			const { job, backlog, leaderboard } = response.data;
 			setJob(job);
+			setJobDescription({isReadmore: jobDescripton.isReadmore, content: job.jobDescription});
 			setBacklog(backlog);
 			setLeaderboard(leaderboard);
 		})
@@ -53,13 +57,62 @@ function ApplyJobPage({ name, email }) {
 					Apply for Jobs
 				</Button>
 			</div>
-			<div style={{width: 'calc(100vw - 308px)', padding: '16px'}}>
+			<div style={{width: 'calc(100vw - 308px)', maxWidth: 'calc(100vw - 308px)', padding: '16px'}}>
 				{isApplyPage ? (
 					Object.keys(job).length > 0 ? (
 						<>
 							<p style={{fontSize: '18px'}}><strong>Job Title:</strong> {job.jobTitle}</p>
 							<p style={{fontSize: '18px'}}><strong>Date Posted:</strong> {job.datePosted}</p>
-							<p style={{fontSize: '18px'}}><strong>Resume:</strong> <a href={job.resume}>{job.resume}</a></p>
+							<p style={{fontSize: '18px'}}><strong>Job Description:</strong></p>
+							<pre style={{fontSize: '16px', whiteSpace: 'pre-wrap'}}>
+								{jobDescripton.isReadmore ? jobDescripton.content.slice(0, 500) : jobDescripton.content}
+								<br />
+								<span
+									style={{color: 'blue', cursor: 'pointer', fontSize: '15px'}}
+									onClick={() => {
+										setJobDescription({isReadmore: !jobDescripton.isReadmore, content: jobDescripton.content});
+									}}
+								>
+									{jobDescripton.isReadmore ? 'Read More' : 'Less'}
+								</span>
+							</pre>
+							<p style={{whiteSpace: 'pre-wrap'}}>
+								<strong>Resume:</strong> <a style={{wordBreak: 'break-all'}} href={job.resume}>{job.resume}</a>
+								{/* <span
+									style={{color: 'blue', cursor: 'pointer'}}
+									onClick={() => {
+										axios.post(`${SERVER_URL}/job/download/resume/`, {resume: job.resume}, {
+											headers: {
+												'Content-Type': 'application/json',
+												'Authorization': `Bearer ${token}`
+											},
+											responseType: 'blob',
+										})
+										.then((response) => {
+											const url = window.URL.createObjectURL(new Blob([response.data]));
+											const link = document.createElement('a');
+											link.href = url;
+											link.setAttribute('download', 'cred.json');
+											document.body.appendChild(link);
+											link.click();
+										})
+										.catch((error) => {
+											console.log(error);
+										})
+									}}
+								>{job.resume}</span> */}
+							</p>
+							{rejection.isRejection ? (
+								<TextField
+									label="Reject Reason"
+									variant="outlined"
+									value={rejection.content}
+									onChange={(e) => {setRejection({...rejection, content: e.target.value})}}
+									fullWidth
+									placeholder='Reject Reason'
+									inputProps={{maxLength: 200}}
+								/>
+							) : ''}
 							<div>
 								<Button
 									onClick={() => {
@@ -102,7 +155,6 @@ function ApplyJobPage({ name, email }) {
 												const differenceInMs = finishedAt - _startedAt;
 												const differenceInMinutes = (differenceInMs / (1000 * 60)).toFixed(1);
 												alert(`It took ${differenceInMinutes} minutes to complete that job application.`);
-												setJob({});
 												getNewJob();
 												setLoading(false);
 											})
@@ -118,7 +170,29 @@ function ApplyJobPage({ name, email }) {
 								</Button>
 								&nbsp;
 								&nbsp;
-								<Button color='error'>Reject Job</Button>
+								<Button color='error' onClick={() => {
+									if (rejection.isRejection) {
+										setLoading(true);
+										axios.post(`${SERVER_URL}/job/reject/`, {jobUrl: job.jobUrl, rejectReason: rejection.content}, {
+											headers: {
+												'Content-Type': 'application/json',
+												'Authorization': `Bearer ${token}`
+											},
+										})
+										.then((response) => {
+											console.log(response);
+											getNewJob();
+											setLoading(false);
+										})
+										.catch((error) => {
+											console.log('---', error);
+											setLoading(false);
+										})
+									}
+									setRejection({...rejection, isRejection: !rejection.isRejection});
+								}} disabled={loading}>
+									{rejection.isRejection ? 'Finalize Rejection' : 'Reject Job'}
+								</Button>
 							</div>
 							{isPendingApply ? (
 								<p style={{fontSize: '18px'}}>Job Apply Started At: <strong>{formatDate(new Date(startedAt))}</strong></p>
