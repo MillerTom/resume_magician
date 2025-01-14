@@ -30,6 +30,7 @@ function ApplyJobPage({ name, email }) {
 			setJob(job);
 			setJobDescription({isReadmore: jobDescripton.isReadmore, content: job.jobDescription});
 			setBacklog(backlog);
+			console.log(leaderboard);
 			setLeaderboard(leaderboard);
 		})
 		.catch((error) => {
@@ -209,7 +210,7 @@ function ApplyJobPage({ name, email }) {
 					<h3>LEADERBOARD</h3>
 					{
 						leaderboard.map(item => (
-							<span>User {item.name.split(' ')[0]} has applied for <strong>{item.num_applied_jobs}</strong> jobs</span>
+							<span style={{display: 'block'}}>User {item.name.split(' ')[0]} has applied for <strong>{item.num_applied_jobs}</strong> jobs</span>
 						))
 					}
 				</div>)}
