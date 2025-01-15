@@ -46,6 +46,11 @@ CORS_ALLOW_HEADERS = [
 CORS_ORIGIN_ALLOW_ALL=True
 
 
+# Postgres
+DB_NAME = env.str('DB_NAME')
+DB_USER = env.str('DB_USER')
+DB_PASSWORD = env.str('DB_PASSWORD')
+
 # Google Sheet
 SPREAD_SHEET_ID = env.str('SPREAD_SHEET_ID')
 SHEET_ID = env.str('SHEET_ID')
@@ -56,7 +61,6 @@ LOCK_COLUMN_INDEX = 27
 STARTED_AT_COLUMN_INDEX = 28
 APPLIED_FOR_DATE_COLUMN_INDEX = 17
 PROBLEM_APPLYING_COLUMN_INDEX = 31
-
 
 # Azure AD Configuration
 AZURE_AD_OAUTH2_KEY = 'bb046ee1-5e34-4edc-ac10-e8b97af6b1a3'  # Application (client) ID
@@ -125,9 +129,9 @@ WSGI_APPLICATION = 'main.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'db_applyjobforever',  # The name of the PostgreSQL database
-        'USER': 'applyjobforever',  # The PostgreSQL user
-        'PASSWORD': '(2.39-0ubuntu8.3',  # The PostgreSQL user's password
+        'NAME': DB_NAME,
+        'USER': DB_USER,
+        'PASSWORD': DB_PASSWORD,
         'HOST': 'localhost',  # Or the IP address of your database server
         'PORT': '5432',  # Default port for PostgreSQL
     }
