@@ -9,7 +9,7 @@ from googleapiclient.discovery import build
 from auth.utils import is_authenticated
 from job.models import UserInfo, Job
 from datetime import datetime
-import time, tempfile, os
+import time, tempfile, os, requests, json
 from dateutil import parser
 from dateutil.relativedelta import relativedelta
 
@@ -37,50 +37,96 @@ def safe_parse(date_str):
         return formated_date.strftime('%Y-%m-%d %H:%M:%S')
     except (ValueError, TypeError):
         return datetime.today().strftime('%Y-%m-%d %H:%M:%S')
+    
+def execute_gviz_query(query):
+    SHEET_ID = settings.SPREAD_SHEET_ID
+    WORKSHEET_ID = settings.SHEET_ID
+    url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq?"
+    params = { 'tq': query, 'tqx': 'out:json', 'gid': WORKSHEET_ID }
 
-class GetJobRecordsView(generics.GenericAPIView):
-    @is_authenticated
-    def post(self, request):
-        sheet = client.open(settings.GOOGLE_SHEET_NAME).get_worksheet_by_id(settings.SHEET_ID)
-        data = sheet.get_all_values()
-        df = pd.DataFrame(data[1:], columns=data[0])
-        df = df.fillna('')
-        df['Posted At'] = df['Posted At'].apply(safe_parse)
-        posted_before = datetime.today() - relativedelta(days=14)
-        posted_before = posted_before.strftime('%Y-%m-%d %H:%M:%S')
-        original_df = df.copy()
-        df = df[
+    try:
+        response = requests.get(url, params=params)
+        response.raise_for_status()
+        raw_data = response.text.lstrip("/*O_o*/\ngoogle.visualization.Query.setResponse(").rstrip(");")
+        data = json.loads(raw_data)
+        return data
+
+    except Exception as e:
+        print(f"Error executing gViz query: {e}")
+        return None
+    
+def get_service_sheet_df():
+    sheet = client.open(settings.GOOGLE_SHEET_NAME).get_worksheet_by_id(settings.SHEET_ID)
+    data = sheet.get_all_values()
+    df = pd.DataFrame(data[1:], columns=data[0])
+    df = df.fillna('')
+    df['Posted At'] = df['Posted At'].apply(safe_parse)
+    posted_before = datetime.today() - relativedelta(days=14)
+    posted_before = posted_before.strftime('%Y-%m-%d %H:%M:%S')
+    original_df = df.copy()
+    df = df[
+        (df['AppliedForDate'] == '') &
+        (df['Lock'] == '') &
+        (df['Easy Apply'] != 'TRUE') &
+        (df['Problem Applying'] == '') &
+        (df['DateJobRemovedFromSite'] == '') &
+        # (df['Posted At'] != '') &
+        (df['Posted At'] > posted_before)
+    ]
+    if len(df) == 0:
+        df = original_df[
             (df['AppliedForDate'] == '') &
             (df['Lock'] == '') &
             (df['Easy Apply'] != 'TRUE') &
             (df['Problem Applying'] == '') &
-            (df['DateJobRemovedFromSite'] == '') &
-            # (df['Posted At'] != '') &
-            (df['Posted At'] > posted_before)
+            (df['DateJobRemovedFromSite'] == '')
         ]
-        if len(df) == 0:
-            df = original_df[
-                (df['AppliedForDate'] == '') &
-                (df['Lock'] == '') &
-                (df['Easy Apply'] != 'TRUE') &
-                (df['Problem Applying'] == '') &
-                (df['DateJobRemovedFromSite'] == '')
-            ]
+    backlog = {}
+    skills = df['Skill'].tolist()
+    skills = list(set(skills))
+    for skill in skills:
+        backlog[skill] = len(df[df['Skill'] == skill])
+    df.sort_values(by='Priority', ascending=True, inplace=True)
+    current_job = df.iloc[0].to_dict()
+    job = {
+        'jobTitle': current_job['JobTitle'],
+        'jobUrl': current_job['JobURL'],
+        'jobDescription': current_job['JobDescription'],
+        'datePosted': current_job['Posted At'],
+        'resume': current_job['Customized Resume']
+    }
+
+
+class GetJobRecordsView(generics.GenericAPIView):
+    @is_authenticated
+    def post(self, request):
+        QUERY = (
+            "SELECT A, B, I, N, O "
+            "WHERE X != 'TRUE' AND "
+            "Q = '' AND "
+            "AA = '' AND "
+            "AD = '' AND "
+            "AE = '' "
+            "ORDER BY E "
+            "LIMIT 1"
+        )
+        data = execute_gviz_query(QUERY)
+        job = {
+            'jobTitle':         data['table']['rows'][0]['c'][0]['v'],
+            'jobDescription':   data['table']['rows'][0]['c'][1]['v'],
+            'datePosted':       data['table']['rows'][0]['c'][2]['v'],
+            'jobUrl':           data['table']['rows'][0]['c'][3]['v'],
+            'resume':           data['table']['rows'][0]['c'][4]['v'],
+        }
 
         backlog = {}
-        skills = df['Skill'].tolist()
-        skills = list(set(skills))
-        for skill in skills:
-            backlog[skill] = len(df[df['Skill'] == skill])
-        df.sort_values(by='Priority', ascending=True, inplace=True)
-        current_job = df.iloc[0].to_dict()
-        job = {
-            'jobTitle': current_job['JobTitle'],
-            'jobUrl': current_job['URL to Apply'],
-            'jobDescription': current_job['JobDescription'],
-            'datePosted': current_job['Posted At'],
-            'resume': current_job['Customized Resume']
-        }
+        QUERY = "SELECT D "
+        data = execute_gviz_query(QUERY)
+        skills = data['table']['rows']
+        skills = [x['c'][0]['v'] for x in skills]
+        unique_skills = list(set(skills))
+        for skill in unique_skills:
+            backlog[skill] = skills.count(skill)
 
         leaderboard = []
         userinfos = UserInfo.objects.all()
@@ -92,14 +138,6 @@ class GetJobRecordsView(generics.GenericAPIView):
                 'num_applied_jobs': len(jobs),
             })
 
-        # jobs = []
-        # for index, row in df.iterrows():
-        #     jobs.append({
-        #         'id': index,
-        #         'jobTitle': row['JobTitle'],
-        #         'datePosted': row['Posted At'],
-        #         'resume': row['Customized Resume'],
-        #     })
         return Response({'job': job, 'backlog': backlog, 'leaderboard': leaderboard}, status=http_status.HTTP_200_OK)
 
 
@@ -111,20 +149,19 @@ class JobApplyStartView(generics.GenericAPIView):
         now = int(time.time())
 
         sheet = client.open(settings.GOOGLE_SHEET_NAME).get_worksheet_by_id(settings.SHEET_ID)
-        data = sheet.get_all_values()
         jobIndex = -1
-        for row_index, row in enumerate(data, start=1):
-            if row[jobUrlColumnIndex] == job_url:
-                jobIndex = row_index
-                if str(row[lockColumnIndex - 1]) == '1':
-                    return Response({'msg': 'Job Locked'}, status=http_status.HTTP_403_FORBIDDEN)
-                sheet.update_cell(row_index, lockColumnIndex, '1')
-                sheet.update_cell(row_index, startedAtColumnIndex, str(now))
+        QUERY = "SELECT N WHERE AA != '1'"
+        data = execute_gviz_query(QUERY)
+        for row_index, row in enumerate(data['table']['rows']):
+            if row['c'][0]['v'] == job_url:
+                jobIndex = row_index + 2
+                sheet.update_cell(jobIndex, lockColumnIndex, '1')
+                sheet.update_cell(jobIndex, startedAtColumnIndex, str(now))
                 break
         if jobIndex >= 0:
             return Response({'jobIndex': jobIndex}, status=http_status.HTTP_200_OK)
         else:
-            return Response({'msg': 'Selected job not found'}, status=http_status.HTTP_404_NOT_FOUND)
+            return Response({'msg': 'Selected job not existing or locked'}, status=http_status.HTTP_404_NOT_FOUND)
 
 
 class JobAppliedView(generics.GenericAPIView):
@@ -158,10 +195,12 @@ class JobRejectView(generics.GenericAPIView):
         reject_reason = data['rejectReason']
         job_url = data['jobUrl']
         sheet = client.open(settings.GOOGLE_SHEET_NAME).get_worksheet_by_id(settings.SHEET_ID)
-        data = sheet.get_all_values()
-        for row_index, row in enumerate(data, start=1):
-            if row[jobUrlColumnIndex] == job_url:
-                sheet.update_cell(row_index, problemApplyingColumnIndex, reject_reason)
+        QUERY = "SELECT N WHERE AA != '1'"
+        data = execute_gviz_query(QUERY)
+        for row_index, row in enumerate(data['table']['rows']):
+            if row['c'][0]['v'] == job_url:
+                job_index = row_index + 2
+                sheet.update_cell(job_index, problemApplyingColumnIndex, reject_reason)
         return Response(status=http_status.HTTP_200_OK)
 
 
