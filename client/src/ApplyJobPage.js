@@ -78,10 +78,13 @@ function ApplyJobPage({ name, email }) {
 								</span>
 							</pre>
 							<p style={{whiteSpace: 'pre-wrap'}}>
-								<strong>Resume:</strong> <a style={{wordBreak: 'break-all'}} href={job.resume}>{job.resume}</a>
-								{/* <span
-									style={{color: 'blue', cursor: 'pointer'}}
+								{/* <strong>Resume:</strong> <a style={{wordBreak: 'break-all'}} href={job.resume}>{job.resume}</a> */}
+								<strong>Download Resume:</strong>&nbsp;
+								<span
+									style={{color: loading ? 'gray' : 'blue', cursor: 'pointer'}}
 									onClick={() => {
+										if (loading) return
+										setLoading(true);
 										axios.post(`${SERVER_URL}/job/download/resume/`, {resume: job.resume}, {
 											headers: {
 												'Content-Type': 'application/json',
@@ -93,15 +96,17 @@ function ApplyJobPage({ name, email }) {
 											const url = window.URL.createObjectURL(new Blob([response.data]));
 											const link = document.createElement('a');
 											link.href = url;
-											link.setAttribute('download', 'cred.json');
+											link.setAttribute('download', 'resume.docx');
 											document.body.appendChild(link);
 											link.click();
+											setLoading(false);
 										})
 										.catch((error) => {
 											console.log(error);
+											setLoading(false);
 										})
 									}}
-								>{job.resume}</span> */}
+								>{job.resume}</span>
 							</p>
 							{rejection.isRejection ? (
 								<TextField

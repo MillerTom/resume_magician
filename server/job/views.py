@@ -9,11 +9,15 @@ from googleapiclient.discovery import build
 from auth.utils import is_authenticated
 from job.models import UserInfo, Job
 from datetime import datetime
-import time, pytz
+import time, tempfile, os
 from dateutil import parser
 from dateutil.relativedelta import relativedelta
 
-scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive", "https://www.googleapis.com/auth/drive.readonly"]
+scope = [
+    "https://spreadsheets.google.com/feeds",
+    "https://www.googleapis.com/auth/drive",
+    "https://www.googleapis.com/auth/drive.readonly",
+]
 creds = ServiceAccountCredentials.from_json_keyfile_name(settings.CREDENTIALS_PATH, scope)
 client = gspread.authorize(creds)
 service = build('sheets', 'v4', credentials=creds)
@@ -165,29 +169,18 @@ class DownloadResumeView(generics.GenericAPIView):
     def post(self, request):
         data = request.data
         resume_url = data['resume']
+        document_id = resume_url.split('/d/')[1]
+        document_id = document_id.split('/edit')[0]
 
-        return Response()
+        request = drive_service.files().export_media(
+            fileId=document_id,
+            mimeType="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        )
 
-        # document_id = resume_url.split('/d/')[1]
-        # document_id = document_id.split('/edit')[0]
-
-        # request = drive_service.files().export_media(fileId=document_id, mimeType="application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".docx")
+        with open(temp_file.name, "wb") as f:
+            f.write(request.execute())
+        response = FileResponse(open(temp_file.name, "rb"), as_attachment=True, filename="resume.docx")
+        os.unlink(temp_file.name)
         
-        # # Save to a temporary file
-        # temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".docx")
-        # with open(temp_file.name, "wb") as f:
-        #     f.write(request.execute())
-        
-        # # Serve the file as a download response
-        # response = FileResponse(open(temp_file.name, "rb"), as_attachment=True, filename="document.docx")
-        
-        # # Cleanup the temp file after serving (optional, using unlink)
-        # os.unlink(temp_file.name)
-        
-        # return response
-    
-
-        # file_handle = open('/var/www/ApplyJobsForeverPortal/server/auth/credentials.json', 'rb')
-        # response = FileResponse(file_handle, as_attachment=True)
-        # # response['Content-Disposition'] = f'attachment; filename="{os.path.basename(file_path)}"'
-        # return response
+        return response
