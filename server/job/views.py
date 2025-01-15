@@ -12,6 +12,7 @@ from datetime import datetime
 import time, tempfile, os, requests, json
 from dateutil import parser
 from dateutil.relativedelta import relativedelta
+from job.utils import execute_gviz_query
 
 scope = [
     "https://spreadsheets.google.com/feeds",
@@ -37,23 +38,6 @@ def safe_parse(date_str):
         return formated_date.strftime('%Y-%m-%d %H:%M:%S')
     except (ValueError, TypeError):
         return datetime.today().strftime('%Y-%m-%d %H:%M:%S')
-    
-def execute_gviz_query(query):
-    SHEET_ID = settings.SPREAD_SHEET_ID
-    WORKSHEET_ID = settings.SHEET_ID
-    url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq?"
-    params = { 'tq': query, 'tqx': 'out:json', 'gid': WORKSHEET_ID }
-
-    try:
-        response = requests.get(url, params=params)
-        response.raise_for_status()
-        raw_data = response.text.lstrip("/*O_o*/\ngoogle.visualization.Query.setResponse(").rstrip(");")
-        data = json.loads(raw_data)
-        return data
-
-    except Exception as e:
-        print(f"Error executing gViz query: {e}")
-        return None
     
 def get_service_sheet_df():
     sheet = client.open(settings.GOOGLE_SHEET_NAME).get_worksheet_by_id(settings.SHEET_ID)

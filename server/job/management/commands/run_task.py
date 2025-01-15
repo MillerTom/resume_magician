@@ -4,6 +4,7 @@ from django.conf import settings
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from googleapiclient.discovery import build
+from job.utils import execute_gviz_query
 
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 creds = ServiceAccountCredentials.from_json_keyfile_name(settings.CREDENTIALS_PATH, scope)
@@ -21,12 +22,18 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         while True:
             print("Running task...")
+            QUERY = (
+                "SELECT AB, AG "
+                "WHERE AA = '1'"
+            )
+            data = execute_gviz_query(QUERY)
             sheet = client.open(settings.GOOGLE_SHEET_NAME).get_worksheet_by_id(settings.SHEET_ID)
-            data = sheet.get_all_values()
-            for row_index, row in enumerate(data, start=1):
-                if str(row[lockColumnIndex - 1]) == '1':
-                    now = int(time.time())
-                    if now - int(row[lockColumnIndex - 1]) > 3600:
-                        sheet.update_cell(row_index, lockColumnIndex, '')
-                        sheet.update_cell(row_index, startedAtColumnIndex, '')
-            time.sleep(10)
+            for row in data['table']['rows']:
+                started_at = row['c'][0]['v']
+                started_at = int(started_at)
+                now = int(time.time())
+                if now - int(row[lockColumnIndex - 1]) > 3600:
+                    row_index = int(row['c'][1]['v'])
+                    sheet.update_cell(row_index, lockColumnIndex, '')
+                    sheet.update_cell(row_index, startedAtColumnIndex, '')
+            time.sleep(1800)
