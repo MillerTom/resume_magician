@@ -102,11 +102,11 @@ class GetJobRecordsView(generics.GenericAPIView):
     def post(self, request):
         QUERY = (
             "SELECT A, B, I, N, O "
-            "WHERE X != 'TRUE' AND "
+            "WHERE X != TRUE AND "
             "Q = '' AND "
             "AA = '' AND "
             "AD = '' AND "
-            "AE = '' "
+            "AF = '' "
             "ORDER BY E "
             "LIMIT 1"
         )
