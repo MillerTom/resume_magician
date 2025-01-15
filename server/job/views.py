@@ -150,11 +150,12 @@ class JobApplyStartView(generics.GenericAPIView):
 
         sheet = client.open(settings.GOOGLE_SHEET_NAME).get_worksheet_by_id(settings.SHEET_ID)
         jobIndex = -1
-        QUERY = "SELECT N WHERE AA != '1'"
+        QUERY = "SELECT N, AG WHERE AA != '1'"
         data = execute_gviz_query(QUERY)
         for row_index, row in enumerate(data['table']['rows']):
             if row['c'][0]['v'] == job_url:
-                jobIndex = row_index + 2
+                jobIndex = int(row['c'][1]['v']) + 1
+                print(jobIndex)
                 sheet.update_cell(jobIndex, lockColumnIndex, '1')
                 sheet.update_cell(jobIndex, startedAtColumnIndex, str(now))
                 break
@@ -195,11 +196,11 @@ class JobRejectView(generics.GenericAPIView):
         reject_reason = data['rejectReason']
         job_url = data['jobUrl']
         sheet = client.open(settings.GOOGLE_SHEET_NAME).get_worksheet_by_id(settings.SHEET_ID)
-        QUERY = "SELECT N WHERE AA != '1'"
+        QUERY = "SELECT N, AG WHERE AA != '1'"
         data = execute_gviz_query(QUERY)
         for row_index, row in enumerate(data['table']['rows']):
             if row['c'][0]['v'] == job_url:
-                job_index = row_index + 2
+                job_index = int(row['c'][1]['v']) + 1
                 sheet.update_cell(job_index, problemApplyingColumnIndex, reject_reason)
         return Response(status=http_status.HTTP_200_OK)
 
