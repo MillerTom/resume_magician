@@ -87,6 +87,7 @@ class GetJobRecordsView(generics.GenericAPIView):
         QUERY = (
             "SELECT A, B, I, N, O "
             "WHERE X != TRUE AND "
+            "N != '' AND "
             "Q = '' AND "
             "AA = '' AND "
             "AD = '' AND "

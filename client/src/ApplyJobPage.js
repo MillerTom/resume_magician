@@ -124,6 +124,7 @@ function ApplyJobPage({ name, email }) {
 									onClick={() => {
 										if (!isPendingApply) {
 											setIsPendingApply(true);
+											setLoading(true);
 											setStartedAt((new Date()).toString());
 											window.open(job.jobUrl, '_blank');
 	
@@ -136,9 +137,11 @@ function ApplyJobPage({ name, email }) {
 											.then((response) => {
 												const { jobIndex } = response.data;
 												setJobIndex(jobIndex);
+												setLoading(false);
 											})
 											.catch((error) => {
 												console.log('---', error);
+												setLoading(false);
 											})
 										} else {
 											setIsPendingApply(false);
