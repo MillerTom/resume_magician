@@ -2,6 +2,7 @@ from rest_framework.response import Response
 from rest_framework import generics, status as http_status
 from django.conf import settings
 from django.http import FileResponse
+from drf_yasg.utils import swagger_auto_schema
 import pandas as pd
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
@@ -23,7 +24,9 @@ creds = ServiceAccountCredentials.from_json_keyfile_name(settings.CREDENTIALS_PA
 client = gspread.authorize(creds)
 service = build('sheets', 'v4', credentials=creds)
 drive_service = build("drive", "v3", credentials=creds)
+spreadsheet_id = settings.SPREAD_SHEET_ID
 
+jobUrlColumnIndex = settings.JOB_URL_COLUMN_INDEX
 lockColumnIndex = settings.LOCK_COLUMN_INDEX
 startedAtColumnIndex = settings.STARTED_AT_COLUMN_INDEX
 appliedForDateColumnIndex = settings.APPLIED_FOR_DATE_COLUMN_INDEX
@@ -36,15 +39,56 @@ def safe_parse(date_str):
         return formated_date.strftime('%Y-%m-%d %H:%M:%S')
     except (ValueError, TypeError):
         return datetime.today().strftime('%Y-%m-%d %H:%M:%S')
+    
+def get_service_sheet_df():
+    sheet = client.open(settings.GOOGLE_SHEET_NAME).get_worksheet_by_id(settings.SHEET_ID)
+    data = sheet.get_all_values()
+    df = pd.DataFrame(data[1:], columns=data[0])
+    df = df.fillna('')
+    df['Posted At'] = df['Posted At'].apply(safe_parse)
+    posted_before = datetime.today() - relativedelta(days=14)
+    posted_before = posted_before.strftime('%Y-%m-%d %H:%M:%S')
+    original_df = df.copy()
+    df = df[
+        (df['AppliedForDate'] == '') &
+        (df['Lock'] == '') &
+        (df['Easy Apply'] != 'TRUE') &
+        (df['Problem Applying'] == '') &
+        (df['DateJobRemovedFromSite'] == '') &
+        # (df['Posted At'] != '') &
+        (df['Posted At'] > posted_before)
+    ]
+    if len(df) == 0:
+        df = original_df[
+            (df['AppliedForDate'] == '') &
+            (df['Lock'] == '') &
+            (df['Easy Apply'] != 'TRUE') &
+            (df['Problem Applying'] == '') &
+            (df['DateJobRemovedFromSite'] == '')
+        ]
+    backlog = {}
+    skills = df['Skill'].tolist()
+    skills = list(set(skills))
+    for skill in skills:
+        backlog[skill] = len(df[df['Skill'] == skill])
+    df.sort_values(by='Priority', ascending=True, inplace=True)
+    current_job = df.iloc[0].to_dict()
+    job = {
+        'jobTitle': current_job['JobTitle'],
+        'jobUrl': current_job['JobURL'],
+        'jobDescription': current_job['JobDescription'],
+        'datePosted': current_job['Posted At'],
+        'resume': current_job['Customized Resume']
+    }
 
 
 class GetJobRecordsView(generics.GenericAPIView):
+    @swagger_auto_schema(auto_schema=None)
     @is_authenticated
     def post(self, request):
         QUERY = (
             "SELECT A, B, I, N, O "
             "WHERE X != TRUE AND "
-            "N != '' AND "
             "Q = '' AND "
             "AA = '' AND "
             "AD = '' AND "
@@ -84,6 +128,8 @@ class GetJobRecordsView(generics.GenericAPIView):
 
 
 class JobApplyStartView(generics.GenericAPIView):
+
+    @swagger_auto_schema(auto_schema=None)
     @is_authenticated
     def post(self, request):
         data = request.data
@@ -104,26 +150,24 @@ class JobApplyStartView(generics.GenericAPIView):
         if jobIndex >= 0:
             return Response({'jobIndex': jobIndex}, status=http_status.HTTP_200_OK)
         else:
-            return Response('Selected job not existing or locked', status=http_status.HTTP_404_NOT_FOUND)
+            return Response({'msg': 'Selected job not existing or locked'}, status=http_status.HTTP_404_NOT_FOUND)
 
 
 class JobAppliedView(generics.GenericAPIView):
+
+    @swagger_auto_schema(auto_schema=None)
     @is_authenticated
     def post(self, request):
         data = request.data
         email = data['email']
         job_url = data['jobUrl']
         job_index = data['jobIndex']
-        print("==========", email)
         userinfo = UserInfo.objects.filter(email=email).first()
-        print("==========", userinfo)
-        job = Job.objects.filter(user=userinfo, url=job_url, index=job_index).first()
-        print("==========", job)
+        job = Job.objects.filter(user=userinfo, url=job_url).first()
         if not job:
             job = Job(
                 user=userinfo,
                 url=job_url,
-                index=int(job_index),
                 applied_at=datetime.now()
             )
             job.save()
@@ -136,6 +180,8 @@ class JobAppliedView(generics.GenericAPIView):
 
 
 class JobRejectView(generics.GenericAPIView):
+
+    @swagger_auto_schema(auto_schema=None)
     @is_authenticated
     def post(self, request):
         data = request.data
@@ -152,6 +198,8 @@ class JobRejectView(generics.GenericAPIView):
 
 
 class DownloadResumeView(generics.GenericAPIView):
+
+    @swagger_auto_schema(auto_schema=None)
     def post(self, request):
         data = request.data
         resume_url = data['resume']

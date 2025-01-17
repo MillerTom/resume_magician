@@ -15,7 +15,7 @@ def validate_access_token(token, tenant_id, client_id):
     if decoded['iss'] in allowed_issuers:
         if int(time.time()) < decoded['exp']:
             return True
-    return False
+    raise Exception('Invalid token')
 
 
 def is_authenticated(view_func):
@@ -24,7 +24,10 @@ def is_authenticated(view_func):
         # Get the access token from the Authorization header
         auth_header = self.request.headers.get("Authorization", None)
         if not auth_header or not auth_header.startswith("Bearer "):
-            return JsonResponse({"e_type": "invalid_auth", "error": "Authorization header missing or invalid."}, status=401)
+            return JsonResponse(
+                {"error": "Authorization header missing or invalid."}, 
+                status=401
+            )
         
         token = auth_header.split(" ")[1]  # Extract the token part
         
@@ -32,12 +35,13 @@ def is_authenticated(view_func):
             # Validate the token
             tenant_id = settings.AZURE_AD_OAUTH2_TENANT_ID
             client_id = settings.AZURE_AD_OAUTH2_KEY
-            validated = validate_access_token(token, tenant_id, client_id)
-            if not validated:
-                return JsonResponse({"e_type": "invalid_auth", "error": "Invalid Token"}, status=403)
+            claims = validate_access_token(token, tenant_id, client_id)
+
+            # # Attach claims to the request for further processing (optional)
+            # request.user_claims = claims
 
         except ValueError as e:
-            return JsonResponse({"e_type": "invalid_auth", "error": str(e)}, status=401)
+            return JsonResponse({"error": str(e)}, status=401)
         
         # Token is valid, proceed with the view
         return view_func(self, request, *args, **kwargs)

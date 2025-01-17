@@ -1,0 +1,9 @@
+*.sqlite3
+*.env
+credentials.json
+venv
+static
+__pycache__
+
+*.swp
+*.swo

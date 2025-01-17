@@ -46,35 +46,39 @@ CORS_ALLOW_HEADERS = [
 CORS_ORIGIN_ALLOW_ALL=True
 
 
-# Postgres
-DB_NAME = env.str('DB_NAME')
-DB_USER = env.str('DB_USER')
-DB_PASSWORD = env.str('DB_PASSWORD')
+SPREAD_SHEET_ID = env.str('SPREAD_SHEET_ID', default='')
 
-# Google Sheet
-SPREAD_SHEET_ID = env.str('SPREAD_SHEET_ID')
-SHEET_ID = env.str('SHEET_ID')
-GOOGLE_SHEET_NAME = env.str('GOOGLE_SHEET_NAME')
-CREDENTIALS_PATH = env.str('CREDENTIALS_PATH')
+SHEET_ID = env.str('SHEET_ID', default='')
+
+GOOGLE_SHEET_NAME = env.str('GOOGLE_SHEET_NAME', default='')
+
+CREDENTIALS_PATH = env.str('CREDENTIALS_PATH', BASE_DIR / "auth" / "credentials.json")
+
 JOB_URL_COLUMN_INDEX = 13
+
 LOCK_COLUMN_INDEX = 27
+
 STARTED_AT_COLUMN_INDEX = 28
+
 APPLIED_FOR_DATE_COLUMN_INDEX = 17
+
 PROBLEM_APPLYING_COLUMN_INDEX = 32
 
 # Azure AD Configuration
-AZURE_AD_OAUTH2_KEY = 'bb046ee1-5e34-4edc-ac10-e8b97af6b1a3'  # Application (client) ID
-AZURE_AD_OAUTH2_SECRET = 'FTQ8Q~PqM37Zh-jys7~EiMdzLYbvG4nwZs4MRcQW'  # Client secret
-AZURE_AD_OAUTH2_TENANT_ID = '1c9e4779-2275-4723-8cb1-d0bfc508bb07'  # Directory (tenant) ID
+#AZURE_AD_OAUTH2_KEY = 'bb046ee1-5e34-4edc-ac10-e8b97af6b1a3'  # Application (client) ID
+
+#AZURE_AD_AUTH_URL = f"https://login.microsoftonline.com/{AZURE_AD_OAUTH2_TENANT_ID}/oauth2/v2.0/authorize"
+
+#AZURE_AD_TOKEN_URL = f"https://login.microsoftonline.com/{AZURE_AD_OAUTH2_TENANT_ID}/oauth2/v2.0/token"
+
+#AZURE_AD_OAUTH2_TENANT_ID = '1c9e4779-2275-4723-8cb1-d0bfc508bb07'  # Directory (tenant) ID
 
 # Redirect URI (same as in Azure AD configuration)
-LOGIN_REDIRECT_URL = env.str('LOGIN_REDIRECT_URL')
+LOGIN_REDIRECT_URL = env.str('LOGIN_REDIRECT_URL', default="/")
+
 LOGIN_ERROR_URL = '/login-error/'
+
 REDIRECT_IS_HTTPS = True
-
-AZURE_AD_AUTH_URL = f"https://login.microsoftonline.com/{AZURE_AD_OAUTH2_TENANT_ID}/oauth2/v2.0/authorize"
-AZURE_AD_TOKEN_URL = f"https://login.microsoftonline.com/{AZURE_AD_OAUTH2_TENANT_ID}/oauth2/v2.0/token"
-
 
 # Application definition
 
@@ -85,9 +89,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'drf_yasg',
     'social_django',
+    'rest_framework',
     'corsheaders',
     'job',
+	'scrapping'
 ]
 
 MIDDLEWARE = [
@@ -126,14 +133,22 @@ WSGI_APPLICATION = 'main.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+DB_NAME = env.str('DB_NAME')
+
+DB_USER = env.str('DB_USER')
+
+DB_PASSWORD = env.str('DB_PASSWORD')
+
+DB_HOST = env.str("DB_HOST")
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': DB_NAME,
         'USER': DB_USER,
         'PASSWORD': DB_PASSWORD,
-        'HOST': 'localhost',  # Or the IP address of your database server
-        'PORT': '5432',  # Default port for PostgreSQL
+        'HOST': DB_HOST,
+        'PORT': '5432',
     }
 }
 
@@ -181,7 +196,14 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
+STATIC_ROOT = BASE_DIR / 'static'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+######################################################
+# Extra configs
+######################################################
+
+APIFY_KEYS = {
+    "ziprecruiter_key" : "apify_api_OERyKTee2N6oWiYu87zhFXe1sfjkhT1sm8FL"
+}

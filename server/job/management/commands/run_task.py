@@ -20,20 +20,20 @@ class Command(BaseCommand):
     help = 'Runs a task periodically'
 
     def handle(self, *args, **kwargs):
-        # while True:
-        print("Running task...")
-        QUERY = (
-            "SELECT AB, AG "
-            "WHERE AA = '1'"
-        )
-        data = execute_gviz_query(QUERY)
-        sheet = client.open(settings.GOOGLE_SHEET_NAME).get_worksheet_by_id(settings.SHEET_ID)
-        for row in data['table']['rows']:
-            started_at = row['c'][0]['v']
-            started_at = int(started_at)
-            now = int(time.time())
-            if now - int(row[lockColumnIndex - 1]) > 3600:
-                row_index = int(row['c'][1]['v'])
-                sheet.update_cell(row_index, lockColumnIndex, '')
-                sheet.update_cell(row_index, startedAtColumnIndex, '')
-            # time.sleep(1800)
+        while True:
+            print("Running task...")
+            QUERY = (
+                "SELECT AB, AG "
+                "WHERE AA = '1'"
+            )
+            data = execute_gviz_query(QUERY)
+            sheet = client.open(settings.GOOGLE_SHEET_NAME).get_worksheet_by_id(settings.SHEET_ID)
+            for row in data['table']['rows']:
+                started_at = row['c'][0]['v']
+                started_at = int(started_at)
+                now = int(time.time())
+                if now - int(row[lockColumnIndex - 1]) > 3600:
+                    row_index = int(row['c'][1]['v'])
+                    sheet.update_cell(row_index, lockColumnIndex, '')
+                    sheet.update_cell(row_index, startedAtColumnIndex, '')
+            time.sleep(1800)
