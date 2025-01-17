@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { SERVER_URL } from './constants';
 
 
-function CallBack({setName}) {
+function CallBack({setName, setEmail}) {
 	const navigate = useNavigate();
 	const [searchParams] = useSearchParams();
 	const code = searchParams.get('code');
@@ -19,15 +19,15 @@ function CallBack({setName}) {
 				localStorage.setItem('iToken', id_token);
 
 				axios.get(`${SERVER_URL}/auth/get/user/`, {
-          headers: {
-            'Content-Type': 'application/json',
+					headers: {
+						'Content-Type': 'application/json',
 						'Authorization': `Bearer ${access_token}`
-          },
-        })
+					},
+				})
 				.then((response) => {
-					const { name } = response.data;
+					const { name, email } = response.data;
 					setName(name);
-					localStorage.setItem('aName', name);
+					setEmail(email);
 					navigate('/applyjob');
 				})
 				.catch((error) => {
@@ -40,11 +40,11 @@ function CallBack({setName}) {
 		}
 	}, [code]);
 
-  return (
-    <div style={{display: 'flex'}}>
-      <h3 style={{marginLeft: '24px'}}>Please wait...</h3>
-    </div>
-  );
+	return (
+		<div style={{display: 'flex'}}>
+			<h3 style={{marginLeft: '24px'}}>Please wait...</h3>
+		</div>
+	);
 }
 
 export default CallBack;

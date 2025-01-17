@@ -3,8 +3,10 @@ import axios from 'axios';
 import { Button, TextField } from '@mui/material';
 import { SERVER_URL } from './constants';
 import { formatDate } from './utils';
+import { useNavigate } from 'react-router-dom';
 
 function ApplyJobPage({ name, email }) {
+	const navigate = useNavigate();
 	const token = localStorage.getItem('aToken');
 	const [isApplyPage, setIsApplyPage] = useState(false);
 	const [backlog, setBacklog] = useState({});
@@ -30,20 +32,27 @@ function ApplyJobPage({ name, email }) {
 			setJob(job);
 			setJobDescription({isReadmore: jobDescripton.isReadmore, content: job.jobDescription});
 			setBacklog(backlog);
-			console.log(leaderboard);
 			setLeaderboard(leaderboard);
 		})
 		.catch((error) => {
-			console.log('---', error);
+			checkError(error);
 		})
+	}
+
+	const checkError = (error) => {
+		if (error.response?.data?.e_type === 'invalid_auth' && error.response?.data?.error === 'Invalid Token') {
+			setLoading(false);
+			alert('Please login again.');
+			navigate('/');
+		}
 	}
 
 	useEffect(() => {
 		getNewJob();
 	}, []);
 
-  return (
-    <div style={{display: 'flex', height: 'calc(100vh - 64px)'}}>
+	return (
+		<div style={{display: 'flex', height: 'calc(100vh - 64px)'}}>
 			<div style={{width: '240px', padding: '16px', borderRight: '1px solid lightblue'}}>
 				<Button
 					style={{width: '100%', justifyContent: 'flex-start', color: 'black'}}
@@ -102,8 +111,7 @@ function ApplyJobPage({ name, email }) {
 											setLoading(false);
 										})
 										.catch((error) => {
-											console.log(error);
-											setLoading(false);
+											checkError(error)
 										})
 									}}
 								>{job.resume}</span>
@@ -140,8 +148,7 @@ function ApplyJobPage({ name, email }) {
 												setLoading(false);
 											})
 											.catch((error) => {
-												console.log('---', error);
-												setLoading(false);
+												checkError(error);
 											})
 										} else {
 											setIsPendingApply(false);
@@ -169,8 +176,7 @@ function ApplyJobPage({ name, email }) {
 												setJobIndex(-1);
 											})
 											.catch((error) => {
-												console.log('---', error);
-												setLoading(false);
+												checkError(error);
 											})
 										}
 									}}
@@ -190,13 +196,11 @@ function ApplyJobPage({ name, email }) {
 											},
 										})
 										.then((response) => {
-											console.log(response);
 											getNewJob();
 											setLoading(false);
 										})
 										.catch((error) => {
-											console.log('---', error);
-											setLoading(false);
+											checkError(error);
 										})
 									}
 									setRejection({...rejection, isRejection: !rejection.isRejection});
@@ -224,8 +228,8 @@ function ApplyJobPage({ name, email }) {
 					}
 				</div>)}
 			</div>
-    </div>
-  );
+		</div>
+	);
 }
 
 export default ApplyJobPage;

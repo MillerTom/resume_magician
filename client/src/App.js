@@ -24,7 +24,6 @@ function App() {
       })
       .then((response) => {
         const { name, email } = response.data;
-        localStorage.setItem('aName', name);
         setName(name);
         setEmail(email);
         const pathname = window.location.pathname;
@@ -68,7 +67,7 @@ function App() {
       <div style={{ display: 'flex', width: '100%' }}>
         <Router>
           <Routes>
-            <Route path='/callback' element={<CallBack setName={setName} />} />
+            <Route path='/callback' element={<CallBack setName={setName} setEmail={setEmail} />} />
             {name ? (<Route path='/applyjob' element={<ApplyJobPage name={name} email={email} />} />) : ''}
           </Routes>
         </Router>
