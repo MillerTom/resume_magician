@@ -28,7 +28,7 @@ class GetTokenView(generics.GenericAPIView):
 
         decoded = jwt.decode(access_token, options={'verify_signature': False})
         name = decoded['name']
-        email = decoded('unique_name')
+        email = decoded['unique_name']
 
         return Response({'access_token': access_token, 'id_token': id_token, 'name': name, 'email': email}, status=http_status.HTTP_200_OK)
 
