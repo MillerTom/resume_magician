@@ -1,3 +1,4 @@
+import csv
 import logging
 import pdb
 
@@ -146,6 +147,7 @@ class ScrapeZipRecruiterEndpoint(APIView):
             else:
                 serialized_results = []
 
+
             results.append({
                 "job_board" : "ziprecruiter",
                 "app_consuming" : app_consuming,
@@ -161,7 +163,6 @@ class ScrapeZipRecruiterEndpoint(APIView):
 
             config.is_active = False
             config.save()
-
 
         return Response(
             {"message": "Scraping completed", "results": results},
@@ -215,3 +216,21 @@ class ScrapeZipRecruiterEndpoint(APIView):
             return False, []
                 
         return True, to_serialize
+
+
+    def as_csv(request, objs):
+        fields_to_ignore = ['scrape_history', 'raw_json_result', 'raw_json_job_details']
+        
+        all_fields = [field.name for field in models.JobBoardScrapeResults._meta.fields]
+        fields = [field for field in all_fields if field not in fields_to_ignore]
+        
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="ziprecruiter-results.csv"'
+
+        writer = csv.writer(response)
+        writer.writerow(fields)
+        queryset = objs
+        for record in queryset:
+            writer.writerow([record[field] for field in fields])
+
+        return response
