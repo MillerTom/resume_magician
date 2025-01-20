@@ -1,4 +1,5 @@
 *.sqlite3
 requirements.md
 *.env
+venv
 apache2.conf

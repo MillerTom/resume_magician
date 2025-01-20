@@ -47,6 +47,7 @@ CORS_ORIGIN_ALLOW_ALL=True
 
 
 # Postgres
+DB_HOST = env.str('DB_HOST')
 DB_NAME = env.str('DB_NAME')
 DB_USER = env.str('DB_USER')
 DB_PASSWORD = env.str('DB_PASSWORD')
@@ -132,7 +133,7 @@ DATABASES = {
         'NAME': DB_NAME,
         'USER': DB_USER,
         'PASSWORD': DB_PASSWORD,
-        'HOST': 'localhost',  # Or the IP address of your database server
+        'HOST': DB_HOST,  # Or the IP address of your database server
         'PORT': '5432',  # Default port for PostgreSQL
     }
 }
