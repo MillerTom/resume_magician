@@ -185,7 +185,7 @@ class AsyncRunView(generics.GenericAPIView):
 
         async def main():
             asyncio.create_task(task())
-            print('=== Main ===')
+            print('=== Main ====')
 
         asyncio.run(main())
 
