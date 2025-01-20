@@ -1,0 +1,4 @@
+*.sqlite3
+requirements.md
+*.env
+apache2.conf
