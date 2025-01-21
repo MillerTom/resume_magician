@@ -3,3 +3,4 @@ requirements.md
 *.env
 venv
 apache2.conf
+credentials.json
