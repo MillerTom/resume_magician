@@ -41,114 +41,124 @@ def safe_parse(date_str):
 class GetJobRecordsView(generics.GenericAPIView):
     @is_authenticated
     def post(self, request):
-        QUERY = (
-            "SELECT A, B, I, N, O "
-            "WHERE X != TRUE AND "
-            "N != '' AND "
-            "Q = '' AND "
-            "AA = '' AND "
-            "AD = '' AND "
-            "AF = '' "
-            "ORDER BY E "
-            "LIMIT 1"
-        )
-        data = execute_gviz_query(QUERY)
-        job = {
-            'jobTitle':         data['table']['rows'][0]['c'][0]['v'],
-            'jobDescription':   data['table']['rows'][0]['c'][1]['v'],
-            'datePosted':       data['table']['rows'][0]['c'][2]['v'],
-            'jobUrl':           data['table']['rows'][0]['c'][3]['v'],
-            'resume':           data['table']['rows'][0]['c'][4]['v'],
-        }
+        try:
+            QUERY = (
+                "SELECT A, B, I, N, O "
+                "WHERE X != TRUE AND "
+                "N != '' AND "
+                "Q = '' AND "
+                "AA = '' AND "
+                "AD = '' AND "
+                "AF = '' "
+                "ORDER BY E "
+                "LIMIT 1"
+            )
+            data = execute_gviz_query(QUERY)
+            job = {
+                'jobTitle':         data['table']['rows'][0]['c'][0]['v'],
+                'jobDescription':   data['table']['rows'][0]['c'][1]['v'],
+                'datePosted':       data['table']['rows'][0]['c'][2]['v'],
+                'jobUrl':           data['table']['rows'][0]['c'][3]['v'],
+                'resume':           data['table']['rows'][0]['c'][4]['v'],
+            }
 
-        backlog = {}
-        QUERY = "SELECT D "
-        data = execute_gviz_query(QUERY)
-        skills = data['table']['rows']
-        skills = [x['c'][0]['v'] for x in skills]
-        unique_skills = list(set(skills))
-        for skill in unique_skills:
-            backlog[skill] = skills.count(skill)
+            backlog = {}
+            QUERY = "SELECT D "
+            data = execute_gviz_query(QUERY)
+            skills = data['table']['rows']
+            skills = [x['c'][0]['v'] for x in skills]
+            unique_skills = list(set(skills))
+            for skill in unique_skills:
+                backlog[skill] = skills.count(skill)
 
-        leaderboard = []
-        userinfos = UserInfo.objects.all()
-        for userinfo in userinfos:
-            jobs = Job.objects.filter(user=userinfo).all()
-            leaderboard.append({
-                'name': userinfo.name,
-                'email': userinfo.email,
-                'num_applied_jobs': len(jobs),
-            })
-
-        return Response({'job': job, 'backlog': backlog, 'leaderboard': leaderboard}, status=http_status.HTTP_200_OK)
+            leaderboard = []
+            userinfos = UserInfo.objects.all()
+            for userinfo in userinfos:
+                jobs = Job.objects.filter(user=userinfo).all()
+                leaderboard.append({
+                    'name': userinfo.name,
+                    'email': userinfo.email,
+                    'num_applied_jobs': len(jobs),
+                })
+            return Response({'job': job, 'backlog': backlog, 'leaderboard': leaderboard}, status=http_status.HTTP_200_OK)
+        except Exception as err:
+            print(f'=== GetRecordError: {str(err)}')
+            return Response(status=http_status.HTTP_404_NOT_FOUND)
 
 
 class JobApplyStartView(generics.GenericAPIView):
     @is_authenticated
     def post(self, request):
-        data = request.data
-        job_url = data['jobUrl']
-        now = int(time.time())
+        try:
+            data = request.data
+            job_url = data['jobUrl']
+            now = int(time.time())
 
-        sheet = client.open(settings.GOOGLE_SHEET_NAME).get_worksheet_by_id(settings.SHEET_ID)
-        jobIndex = -1
-        QUERY = "SELECT N, AG WHERE AA != '1'"
-        data = execute_gviz_query(QUERY)
-        for row_index, row in enumerate(data['table']['rows']):
-            if row['c'][0]['v'] == job_url:
-                jobIndex = int(row['c'][1]['v']) + 1
-                print(jobIndex)
-                sheet.update_cell(jobIndex, lockColumnIndex, '1')
-                sheet.update_cell(jobIndex, startedAtColumnIndex, str(now))
-                break
-        if jobIndex >= 0:
-            return Response({'jobIndex': jobIndex}, status=http_status.HTTP_200_OK)
-        else:
-            return Response('Selected job not existing or locked', status=http_status.HTTP_404_NOT_FOUND)
+            sheet = client.open(settings.GOOGLE_SHEET_NAME).get_worksheet_by_id(settings.SHEET_ID)
+            jobIndex = -1
+            QUERY = "SELECT N, AG WHERE AA != '1'"
+            data = execute_gviz_query(QUERY)
+            for row_index, row in enumerate(data['table']['rows']):
+                if row['c'][0]['v'] == job_url:
+                    jobIndex = int(row['c'][1]['v']) + 1
+                    print(jobIndex)
+                    sheet.update_cell(jobIndex, lockColumnIndex, '1')
+                    sheet.update_cell(jobIndex, startedAtColumnIndex, str(now))
+                    break
+            if jobIndex >= 0:
+                return Response({'jobIndex': jobIndex}, status=http_status.HTTP_200_OK)
+        except Exception as err:
+            print(f'=== JobApplyStartError: {str(err)}')
+        return Response('Selected job not existing or locked', status=http_status.HTTP_404_NOT_FOUND)
 
 
 class JobAppliedView(generics.GenericAPIView):
     @is_authenticated
     def post(self, request):
-        data = request.data
-        email = data['email']
-        job_url = data['jobUrl']
-        job_index = data['jobIndex']
-        print("==========", email)
-        userinfo = UserInfo.objects.filter(email=email).first()
-        print("==========", userinfo)
-        job = Job.objects.filter(user=userinfo, url=job_url, index=job_index).first()
-        print("==========", job)
-        if not job:
-            job = Job(
-                user=userinfo,
-                url=job_url,
-                index=int(job_index),
-                applied_at=datetime.now()
-            )
-            job.save()
-        sheet = client.open(settings.GOOGLE_SHEET_NAME).get_worksheet_by_id(settings.SHEET_ID)
-        sheet.update_cell(job_index, lockColumnIndex, '')
-        sheet.update_cell(job_index, startedAtColumnIndex, '')
-        now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        sheet.update_cell(job_index, appliedForDateColumnIndex, now)
-        return Response(status=http_status.HTTP_200_OK)
+        try:
+            data = request.data
+            email = data['email']
+            job_url = data['jobUrl']
+            job_index = data['jobIndex']
+            userinfo = UserInfo.objects.filter(email=email).first()
+            job = Job.objects.filter(user=userinfo, url=job_url, index=job_index).first()
+            if not job:
+                job = Job(
+                    user=userinfo,
+                    url=job_url,
+                    index=int(job_index),
+                    applied_at=datetime.now()
+                )
+                job.save()
+            sheet = client.open(settings.GOOGLE_SHEET_NAME).get_worksheet_by_id(settings.SHEET_ID)
+            sheet.update_cell(job_index, lockColumnIndex, '')
+            sheet.update_cell(job_index, startedAtColumnIndex, '')
+            now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            sheet.update_cell(job_index, appliedForDateColumnIndex, now)
+            return Response(status=http_status.HTTP_200_OK)
+        except Exception as err:
+            print(f'=== JobAppliedError: {str(err)}')
+            return Response(status=http_status.HTTP_400_BAD_REQUEST)
 
 
 class JobRejectView(generics.GenericAPIView):
     @is_authenticated
     def post(self, request):
-        data = request.data
-        reject_reason = data['rejectReason']
-        job_url = data['jobUrl']
-        sheet = client.open(settings.GOOGLE_SHEET_NAME).get_worksheet_by_id(settings.SHEET_ID)
-        QUERY = "SELECT N, AG WHERE AA != '1'"
-        data = execute_gviz_query(QUERY)
-        for row_index, row in enumerate(data['table']['rows']):
-            if row['c'][0]['v'] == job_url:
-                job_index = int(row['c'][1]['v']) + 1
-                sheet.update_cell(job_index, problemApplyingColumnIndex, reject_reason)
-        return Response(status=http_status.HTTP_200_OK)
+        try:
+            data = request.data
+            reject_reason = data['rejectReason']
+            job_url = data['jobUrl']
+            sheet = client.open(settings.GOOGLE_SHEET_NAME).get_worksheet_by_id(settings.SHEET_ID)
+            QUERY = "SELECT N, AG WHERE AA != '1'"
+            data = execute_gviz_query(QUERY)
+            for row_index, row in enumerate(data['table']['rows']):
+                if row['c'][0]['v'] == job_url:
+                    job_index = int(row['c'][1]['v']) + 1
+                    sheet.update_cell(job_index, problemApplyingColumnIndex, reject_reason)
+            return Response(status=http_status.HTTP_200_OK)
+        except Exception as err:
+            print(f'=== JobRejectError: {str(err)}')
+            return Response(status=http_status.HTTP_400_BAD_REQUEST)
 
 
 class DownloadResumeView(generics.GenericAPIView):
