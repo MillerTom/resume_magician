@@ -25,6 +25,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
+
+#TODO use the hostname and port of prod server
+#that I put in .env file.... to determine if this is a production server or a test server. if the hostname and port match production values, then we are in production mode, and must never run in debug mode, and do many more checks to ensure security.
+
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-v7cl8h-1inc531fjm5-@f&la76rjy&)ldsdbmptxu8zyyj=kk1'
 

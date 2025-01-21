@@ -1,4 +1,7 @@
-import requests
+try:
+    import requests
+except ImportError:
+    print("The 'requests' library is not installed. Please install it using 'pip install requests'.")
 import json
 from django.conf import settings
 
