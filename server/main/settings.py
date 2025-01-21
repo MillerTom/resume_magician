@@ -47,6 +47,7 @@ CORS_ORIGIN_ALLOW_ALL=True
 
 
 # Postgres
+DB_HOST = env.str('DB_HOST')
 DB_NAME = env.str('DB_NAME')
 DB_USER = env.str('DB_USER')
 DB_PASSWORD = env.str('DB_PASSWORD')
@@ -55,7 +56,7 @@ DB_PASSWORD = env.str('DB_PASSWORD')
 SPREAD_SHEET_ID = env.str('SPREAD_SHEET_ID')
 SHEET_ID = env.str('SHEET_ID')
 GOOGLE_SHEET_NAME = env.str('GOOGLE_SHEET_NAME')
-CREDENTIALS_PATH = env.str('CREDENTIALS_PATH')
+CREDENTIALS_PATH = os.path.join(BASE_DIR, 'main', 'credentials.json')
 JOB_URL_COLUMN_INDEX = 13
 LOCK_COLUMN_INDEX = 27
 STARTED_AT_COLUMN_INDEX = 28
@@ -132,7 +133,7 @@ DATABASES = {
         'NAME': DB_NAME,
         'USER': DB_USER,
         'PASSWORD': DB_PASSWORD,
-        'HOST': 'localhost',  # Or the IP address of your database server
+        'HOST': DB_HOST,  # Or the IP address of your database server
         'PORT': '5432',  # Default port for PostgreSQL
     }
 }
