@@ -1,7 +1,4 @@
 from rest_framework.response import Response
-from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
-from rest_framework.pagination import PageNumberPagination
-from rest_framework.viewsets import GenericViewSet
 from rest_framework import generics, status as http_status
 from django.conf import settings
 from django.http import FileResponse
@@ -9,14 +6,11 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from googleapiclient.discovery import build
 from auth.utils import is_authenticated
-from job.models import UserInfo, Job, ConfigIndeed, ConfigDice, ConfigLinkedIn, ConfigZiprecruiter
+from job.models import UserInfo, Job
 from datetime import datetime
 import time, tempfile, os
 from dateutil import parser
 from job.utils import execute_gviz_query
-from job.models import ConfigZiprecruiter, Job, JobBoardResult, ScrapeHistory, UserInfo
-from job.serializers import JobsSerializer, PullJobSerializer
-from job.tasks import run_actor
 
 scope = [
     "https://spreadsheets.google.com/feeds",
@@ -204,34 +198,3 @@ class AsyncRunView(generics.GenericAPIView):
         asyncio.run(main())
 
         return Response({'msg': 'hello world!'}, status=http_status.HTTP_200_OK)
-    
-
-class ScrapeView(generics.GenericAPIView):
-    serializer_class = PullJobSerializer
-
-    def post(self, request):
-        serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid():
-            configs = ConfigZiprecruiter.objects.filter(is_active=True)
-            number_of_days = serializer.data.get("numberOfDays")
-            for config in configs:
-                run_actor.delay(config.pk, number_of_days)
-            return Response(
-                {
-                    "status": "success",
-                    "message": "successfully scheduled tasks. Wait for a moment to get the results.",
-                },
-                status=http_status.HTTP_200_OK,
-            )
-        else:
-            return Response(serializer.errors, status=http_status.HTTP_400_BAD_REQUEST)
-
-
-class JobPagination(PageNumberPagination):
-    page_size = 20
-
-
-class JobBoardResultViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSet):
-    queryset = JobBoardResult.objects.all()
-    serializer_class = JobsSerializer
-    pagination_class = JobPagination

@@ -1,6 +1,5 @@
 from rest_framework import serializers
-
-from job.models import JobBoardResult
+from scraper.models import JobBoardResult
 
 
 class PullJobSerializer(serializers.Serializer):

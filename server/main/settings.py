@@ -73,9 +73,20 @@ LOGIN_REDIRECT_URL = env.str('LOGIN_REDIRECT_URL')
 LOGIN_ERROR_URL = '/login-error/'
 REDIRECT_IS_HTTPS = True
 
-AZURE_AD_AUTH_URL = f"https://login.microsoftonline.com/{AZURE_AD_OAUTH2_TENANT_ID}/oauth2/v2.0/authorize"
-AZURE_AD_TOKEN_URL = f"https://login.microsoftonline.com/{AZURE_AD_OAUTH2_TENANT_ID}/oauth2/v2.0/token"
+AZURE_AD_AUTH_URL = f'https://login.microsoftonline.com/{AZURE_AD_OAUTH2_TENANT_ID}/oauth2/v2.0/authorize'
+AZURE_AD_TOKEN_URL = f'https://login.microsoftonline.com/{AZURE_AD_OAUTH2_TENANT_ID}/oauth2/v2.0/token'
 
+APIFY_API_KEY = env.str('APIFY_API_KEY')
+
+# Scraper Run Status
+SCRAPER_RUN_STATUS = {
+    'READY': 'READY',
+    'RUNNING': 'RUNNING',
+    'SUCCEEDED': 'SUCCEEDED',
+    'FAILED': 'FAILED',
+    'TIMED_OUT': 'TIMED_OUT',
+    'ABORTED': 'ABORTED',
+}
 
 # Application definition
 
@@ -89,6 +100,7 @@ INSTALLED_APPS = [
     'social_django',
     'corsheaders',
     'job',
+    'scraper',
 ]
 
 MIDDLEWARE = [

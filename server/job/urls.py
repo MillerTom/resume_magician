@@ -1,5 +1,4 @@
 from django.urls import path
-from rest_framework.routers import DefaultRouter
 from job.views import (
     GetJobRecordsView,
     JobApplyStartView,
@@ -7,12 +6,7 @@ from job.views import (
     JobRejectView,
     DownloadResumeView,
     AsyncRunView,
-    ScrapeView,
-    JobBoardResultViewSet,
 )
-
-router = DefaultRouter()
-router.register("jobs", JobBoardResultViewSet, basename="job")
 
 urlpatterns = [
     path('get/records/', GetJobRecordsView.as_view(), name='get_records'),

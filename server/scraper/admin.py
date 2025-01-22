@@ -1,0 +1,18 @@
+from django.contrib import admin
+from scraper.models import (
+    Scraper,
+    Configuration,
+    JobBoardResult,
+    ScrapeHistory
+)
+
+admin.site.register(Scraper)
+admin.site.register(Configuration)
+
+@admin.register(ScrapeHistory)
+class ScrapeHistoryAdmin(admin.ModelAdmin):
+    list_display = [field.name for field in ScrapeHistory._meta.get_fields()]
+
+@admin.register(JobBoardResult)
+class JobBoardResultAdmin(admin.ModelAdmin):
+    list_display = [field.name for field in JobBoardResult._meta.get_fields()]
