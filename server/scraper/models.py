@@ -11,6 +11,7 @@ class Scraper(models.Model):
 
     class Meta:
         verbose_name_plural = 'Scraper'
+        db_table = 'scrapers'
 
 
 class Configuration(models.Model):
@@ -23,6 +24,7 @@ class Configuration(models.Model):
 
     class Meta:
         verbose_name_plural = 'Configuration'
+        db_table = 'configurations'
 
 
 class JobBoardResult(models.Model):
@@ -58,6 +60,9 @@ class JobBoardResult(models.Model):
     date_job_removed_from_site = models.DateTimeField(null=True)
     problem_applying_description = models.CharField(max_length=100, default='')
     created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        db_table = 'jobboard_results'
 
 
 class ScrapeHistory(models.Model):
@@ -77,3 +82,4 @@ class ScrapeHistory(models.Model):
 
     class Meta:
         verbose_name_plural = 'Scrape Histories'
+        db_table = 'scrape_histories'
