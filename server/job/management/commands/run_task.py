@@ -21,7 +21,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         # while True:
-        print("Running task...")
+        now = int(time.time())
+        print(f"Running task {str(now)}")
         QUERY = (
             "SELECT AB, AG "
             "WHERE AA = '1'"
