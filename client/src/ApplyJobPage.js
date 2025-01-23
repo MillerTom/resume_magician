@@ -36,6 +36,7 @@ function ApplyJobPage({ name, email }) {
 		})
 		.catch((error) => {
 			checkError(error);
+			if (error.response.status === 404) alert('No job found. Please reload the page and try again.');
 		})
 	}
 
@@ -149,6 +150,7 @@ function ApplyJobPage({ name, email }) {
 											})
 											.catch((error) => {
 												checkError(error);
+												if (error.response.status === 400) alert('Starting job apply failed. Please try again later.');
 											})
 										} else {
 											setIsPendingApply(false);
@@ -177,6 +179,7 @@ function ApplyJobPage({ name, email }) {
 											})
 											.catch((error) => {
 												checkError(error);
+												if (error.response.status === 400) alert('Finishing job apply failed. Please try again later.');
 											})
 										}
 									}}
@@ -201,6 +204,7 @@ function ApplyJobPage({ name, email }) {
 										})
 										.catch((error) => {
 											checkError(error);
+											if (error.response.status === 400) alert('Rejecting job apply failed. Please try again later.');
 										})
 									}
 									setRejection({...rejection, isRejection: !rejection.isRejection});
