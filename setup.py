@@ -7,6 +7,7 @@ import platform
 import threading
 import requests
 
+
 # THIS IS INTENDED SOLELY FOR RUNNING IN DEV ENVIRONMENT
 # This script is designed to help set up the development environment by:
 # - Checking for conflicts with the default ports used by React (3000) and Django (8000).
@@ -48,17 +49,38 @@ def find_free_port(start_port):
     logging.info(f"Found a free port: {port}")
     return port
 
-def run_subprocess(command, check=True):
+def run_subprocess(command, check=True, shell=False):
     """Run a subprocess command."""
     logging.debug(f"Running command: {command}")
     try:
-        command_list = command.split()
-        subprocess.run(command_list, check=check)
+        if shell:
+            subprocess.run(command, check=check, shell=shell)
+        else:
+            command_list = command.split()
+            subprocess.run(command_list, check=check, shell=shell)
+
     except subprocess.CalledProcessError as e:
         logging.critical(f"ERROR: Command failed: {e}")
         sys.exit(1)
     except FileNotFoundError as e:
         logging.critical(f"ERROR: Command not found: {e}")
+        sys.exit(1)
+
+def run_subprocess2(command, check=True, shell=True):
+    """Run a subprocess command."""
+    logging.debug(f"Running command: {command}")
+    try:
+        # command_list = command.split()
+        result = subprocess.run(command, check=check, shell=shell, capture_output=True, text=True)
+        logging.debug(f"Output: {result.stdout}")
+    except subprocess.CalledProcessError as e:
+        logging.critical(f"ERROR: Command failed: {e}")
+        sys.exit(1)
+    except FileNotFoundError as e:
+        logging.critical(f"ERROR: Command not found: {e}")
+        sys.exit(1)
+    except Exception as e:
+        logging.critical(f"ERROR: Command failed: {e}")
         sys.exit(1)
 
 def run_subprocess_async(command):
@@ -127,7 +149,7 @@ def run_django_migrations():
     system_info = platform.system()
     python_command = os.path.join(venv_dir, 'Scripts' if system_info == 'Windows' else 'bin', 'python')
     try:
-        run_subprocess(f'python manage.py migrate')
+        run_subprocess(f'python {start_django_dir} migrate')
     except Exception as e:
         logging.critical(f"ERROR: Django migrations failed: {e}")
         sys.exit(1)
@@ -137,7 +159,7 @@ def start_react_app(free_port):
     logging.info(f"Starting React app on port {free_port}...")
     react_start_command = f'npm start --port {free_port}'  # You may want to adjust this command if needed
     try:
-        run_subprocess(f'cd {base_dir}/client && {react_start_command}')
+        run_subprocess(f'cd {base_dir}/client && {react_start_command}', shell=True)
     except Exception as e:
         logging.critical(f"ERROR: React app failed to start: {e}")
         sys.exit(1)
@@ -147,8 +169,11 @@ def start_django_app():
     logging.info("Starting Django app...")
     system_info = platform.system()
     python_command = os.path.join(venv_dir, 'Scripts' if system_info == 'Windows' else 'bin', 'python')
+
+    project_root = os.path.dirname(os.path.abspath(__file__))
+    manage_py_path = os.path.join(project_root, 'server', 'manage.py')
     try:
-        run_subprocess(f'python runserver')
+        run_subprocess(f'python {manage_py_path} runserver {DJANGO_PORT}', shell=True)
     except Exception as e:
         logging.critical(f"ERROR: Django app failed to start: {e}")
         sys.exit(1)
