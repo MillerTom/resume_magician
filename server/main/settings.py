@@ -145,8 +145,8 @@ DATABASES = {
         'NAME': DB_NAME,
         'USER': DB_USER,
         'PASSWORD': DB_PASSWORD,
-        'HOST': DB_HOST,  # Or the IP address of your database server
-        'PORT': '5432',  # Default port for PostgreSQL
+        'HOST': DB_HOST,
+        'PORT': '5432',
     }
 }
 

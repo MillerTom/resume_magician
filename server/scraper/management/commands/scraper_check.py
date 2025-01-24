@@ -63,13 +63,13 @@ class Command(BaseCommand):
                     new_job_result.save()
 
                 if history.status != 'SUCCEEDED' or number_of_jobs == 0:
-                    print("========== Not Succeed: ", history.id)
+                    print("Failed: ", history.id)
                     if history.days == history.configuration.days:
                         run_actor(scraper, configuration, configuration.days + 1)
                 else:
                     history.number_of_jobs = number_of_jobs
-                    print("========== Succeed: ", history.id)
+                    print("Succeed: ", history.id)
                 history.is_done = True
                 history.save()
             except Exception as err:
-                print(f'=== scraper_check error: {str(err)}')
+                print(f'Error: {str(err)}')

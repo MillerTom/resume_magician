@@ -23,7 +23,7 @@ def run_actor(scraper, configuration, days=-1):
     try:
         apify_client = CustomApifyClient(settings.APIFY_API_KEY, actor_id)
         response = apify_client.start_actor(payload)
-        print(response['defaultDatasetId'])
+        print(f'DatasetId: {response["defaultDatasetId"]}')
 
         history = ScrapeHistory(
             configuration=configuration,
