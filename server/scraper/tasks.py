@@ -1,5 +1,4 @@
-from django.conf import settings
-from scraper.models import JobBoardResult, ScrapeHistory
+from scraper.models import ApifyKey, ScrapeHistory
 from scraper.utils import CustomApifyClient
 
 
@@ -21,7 +20,9 @@ def run_actor(scraper, configuration, days=-1):
         },
     }
     try:
-        apify_client = CustomApifyClient(settings.APIFY_API_KEY, actor_id)
+        apify_key = ApifyKey.objects.first()
+        APIFY_API_KEY = apify_key.value
+        apify_client = CustomApifyClient(APIFY_API_KEY, actor_id)
         response = apify_client.start_actor(payload)
         print(f'DatasetId: {response["defaultDatasetId"]}')
 

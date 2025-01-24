@@ -3,11 +3,13 @@ from scraper.models import (
     Scraper,
     Configuration,
     JobBoardResult,
-    ScrapeHistory
+    ScrapeHistory,
+    ApifyKey,
 )
 
 admin.site.register(Scraper)
 admin.site.register(Configuration)
+admin.site.register(ApifyKey)
 
 @admin.register(ScrapeHistory)
 class ScrapeHistoryAdmin(admin.ModelAdmin):

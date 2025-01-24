@@ -83,3 +83,11 @@ class ScrapeHistory(models.Model):
     class Meta:
         verbose_name_plural = 'Scrape Histories'
         db_table = 'scrape_histories'
+
+
+class ApifyKey(models.Model):
+    value = models.CharField(max_length=100, unique=True)
+
+    class Meta:
+        verbose_name_plural = 'Apify API Key'
+        db_table = 'apify_key'

@@ -1,6 +1,5 @@
 from django.core.management.base import BaseCommand
-from django.conf import settings
-from scraper.models import ScrapeHistory, JobBoardResult
+from scraper.models import ScrapeHistory, JobBoardResult, ApifyKey
 from scraper.utils import CustomApifyClient, get_datetime
 from scraper.tasks import run_actor
 
@@ -9,13 +8,15 @@ class Command(BaseCommand):
     help = 'Check Scraper History Periodically'
 
     def handle(self, *args, **kwargs):
+        apify_key = ApifyKey.objects.first()
+        APIFY_API_KEY = apify_key.value
         histories = ScrapeHistory.objects.filter(is_done=False).all()
         for history in histories:
             try:
                 configuration = history.configuration
                 scraper = configuration.scraper
                 actor_id = scraper.actor_id
-                apify_client = CustomApifyClient(settings.APIFY_API_KEY, actor_id)
+                apify_client = CustomApifyClient(APIFY_API_KEY, actor_id)
 
                 # Retry with modified number_of_days
                 jobs = apify_client.client.dataset(history.dataset_id).iterate_items()

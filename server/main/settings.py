@@ -76,8 +76,6 @@ REDIRECT_IS_HTTPS = True
 AZURE_AD_AUTH_URL = f'https://login.microsoftonline.com/{AZURE_AD_OAUTH2_TENANT_ID}/oauth2/v2.0/authorize'
 AZURE_AD_TOKEN_URL = f'https://login.microsoftonline.com/{AZURE_AD_OAUTH2_TENANT_ID}/oauth2/v2.0/token'
 
-APIFY_API_KEY = env.str('APIFY_API_KEY')
-
 # Scraper Run Status
 SCRAPER_RUN_STATUS = {
     'READY': 'READY',
