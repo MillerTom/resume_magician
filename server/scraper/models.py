@@ -81,8 +81,8 @@ class ScrapeHistory(models.Model):
     number_of_jobs = models.IntegerField(default=0)
 
     class Meta:
-        verbose_name_plural = 'Scrape Histories'
-        db_table = 'scrape_histories'
+        verbose_name_plural = 'Scrape History'
+        db_table = 'scrape_history'
 
 
 class ApifyKey(models.Model):
