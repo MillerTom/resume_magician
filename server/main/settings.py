@@ -93,6 +93,7 @@ INSTALLED_APPS = [
     'social_django',
     'corsheaders',
     'job',
+    'testlog'
 ]
 
 MIDDLEWARE = [
