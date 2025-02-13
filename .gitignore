@@ -4,3 +4,4 @@ requirements.md
 venv
 apache2.conf
 credentials.json
+*.pyc
