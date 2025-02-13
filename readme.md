@@ -1,4 +1,4 @@
-# ApplyJobForever
+# ResumeMagician
 
 ## Environment variables
 Create `.env` inside `server/main`
