@@ -12,7 +12,7 @@ Get environment variables from administrator and put it to `.env`
 cd `server/`
 
 all scrape with scrapers
-`python(3) manage.py scrape`
+`python(3) manage.py scrape all`
 
 single scrape with special scraper
 

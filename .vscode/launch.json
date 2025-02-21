@@ -11,7 +11,9 @@
             "program": "./server/manage.py",
             "args": [
                 "scrape",
-                "ZipRecruiter"
+                // "all",
+                "Linkedin"
+                // "ZipRecruiter"
             ],
             "console": "integratedTerminal"
         },
