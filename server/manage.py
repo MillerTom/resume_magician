@@ -6,7 +6,17 @@ import sys
 
 def main():
     """Run administrative tasks."""
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'main.settings')
+    run_type = None
+    if len(sys.argv) > 2:
+        if sys.argv[2] == 'local':
+            run_type = sys.argv[2]
+            sys.argv.pop(2)
+
+    if run_type == 'local':
+        os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'main.settingslocal')
+    else:
+        os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'main.settings')
+
     try:
         from django.core.management import execute_from_command_line
         from django.core.management.commands.runserver import Command as runserver

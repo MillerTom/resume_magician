@@ -1,0 +1,19 @@
+{% extends "admin/change_list.html" %}
+{% load i18n admin_urls static admin_list %}
+
+{% block result_list %}
+{% if action_form and actions_on_top and cl.show_admin_actions %}{% admin_actions %}{% endif %}
+{% comment %} {% result_list cl %} {% endcomment %}
+{% include 'admin/scraper/configdice.html' with cl=cl %}
+
+{% comment %} {% for object in cl.list_display %}
+    {{object}}
+{% endfor %}
+{% for object in cl.result_list %}
+    {{object.id}}
+    {{object.Skill}}
+    {{object.Isactive}}
+{% endfor %} {% endcomment %}
+
+{% if action_form and actions_on_bottom and cl.show_admin_actions %}{% admin_actions %}{% endif %}
+{% endblock %}

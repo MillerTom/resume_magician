@@ -1,0 +1,78 @@
+{% extends "baseList.html" %}
+
+{% block title %}Job results{% endblock %}
+{% block content %}
+  {% if items %}
+  {% for item in items %}
+    <table class="jobs">      
+      <tr>
+        <td>        
+          ({{item.Jobtitle}})
+        </td>
+        <td>        
+          ({{item.Jobdescription}})
+        </td>
+        <td>        
+          ({{item.Source}})
+        </td>
+        <td>        
+          ({{item.Skill}})
+        </td>
+        <td>        
+          ({{item.ResumeCreated}})
+        </td>
+        <td>        
+          ({{item.Dateinserted}})
+        </td>
+        <td>        
+          ({{item.ScrapedAt}})
+        </td>
+        <td>        
+          ({{item.Runid}})
+        </td>
+        <td>        
+          ({{item.PostedAt}})
+        </td>
+        <td>        
+          ({{item.Salary}})
+        </td>
+        <td>        
+          ({{item.JobType}})
+        </td>
+        <td>        
+          ({{item.Company}})
+        </td>
+        <td>        
+          ({{item.Location}})
+        </td>
+        <td>        
+          ({{item.Joburl}})
+        </td>
+        <td>        
+          ({{item.Jobid}})
+        </td>
+        <td>        
+          ({{item.JdIsmismatch}})
+        </td>
+        <td>        
+          ({{item.WhoJdIsmismatch}})
+        </td>
+        <td>        
+          ({{item.Iscomplexform}})
+        </td>
+        <td>        
+          ({{item.TodayDate}})
+        </td>
+        <td>        
+          ({{item.ApplyType}})
+        </td>
+        <td>        
+          ({{item.Externalapplyurl}})
+        </td>    
+      </tr>  
+    </table>
+    {% endfor %}
+  {% else %}
+    <p>There are no jobs in the table.</p>
+  {% endif %}
+{% endblock %}

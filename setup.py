@@ -4,6 +4,13 @@ import sys
 import os
 import threading
 
+args = sys.argv
+run_type = None
+if(len(args) >  1):
+    if args[1] == 'local':
+        run_type = args[1]
+        sys.argv.pop(1)
+
 python_executable = sys.executable
 system_info = platform.system()
 base_dir = os.getcwd()
@@ -44,7 +51,10 @@ if system_info == 'Windows':
 else:
     python_command = os.path.join(venv_dir, 'bin', 'python')
 start_django_dir = os.path.join(base_dir, 'server', 'manage.py')
-run_subprocess(f'{python_command} {start_django_dir} migrate')
+if run_type != None:
+    run_subprocess(f'{python_command} {start_django_dir} migrate {run_type}')
+else:
+    run_subprocess(f'{python_command} {start_django_dir} migrate')
 
 # Start React app
 start_react_dir = os.path.join(base_dir, 'client', 'build')
@@ -54,4 +64,7 @@ run_subprocess_async(f'{sudo_prefix}{python_command} -m http.server 80 --directo
 
 # Start Django
 start_django_dir = os.path.join(base_dir, 'server', 'manage.py')
-run_subprocess(f'{python_command} {start_django_dir} runserver')
+if run_type != None:
+    run_subprocess(f'{python_command} {start_django_dir} runserver {run_type}')
+else:
+    run_subprocess(f'{python_command} {start_django_dir} runserver')

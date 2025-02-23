@@ -1,0 +1,18 @@
+{% extends "admin/change_list_results.html" %}
+{% load i18n %}
+
+{% block results %}
+  {% if results %}    
+    {% for result in results %}
+      {% if result.form and result.form.non_field_errors %}
+          <tr><td colspan="{{ result|length }}">{{ result.form.non_field_errors }}</td></tr>
+      {% endif %}
+      <tr>{% for item in result %}
+        {% for tag in result.tags.all %}
+          <li>{{ tag.name }}</li>
+        {% endfor %}
+        {{ item }}
+        {% endfor %}</tr>
+    {% endfor %}
+  {% endif %}
+{% endblock %}

@@ -1,0 +1,110 @@
+
+table {
+    border-spacing: 0px;
+    border-collapse: collapse;
+    width: 100%;
+    table-layout: fixed;
+}
+
+table tr:hover {background-color: #ddd;}
+table td:hover {background-color: #414141;}
+
+table td, table th {
+    border: 1px solid black;
+    border-collapse: collapse;
+    padding:  4px;
+    margin: 0, 0;
+    overflow: hidden;
+    text-overflow: ellipsis; 
+    white-space: nowrap; 
+    user-select: text;
+}
+
+.dice td:first-child {
+    width: 100px;    
+}
+
+.dice td:nth-child(2) {
+    width: 75%;    
+}
+
+.dice td:nth-child(3) {
+    width: 5%;
+}
+
+.dice td:nth-child(4) {
+    width: 5%;
+}
+
+.dice td:nth-child(5) {
+    width: 5%;
+}
+
+.indeed td:first-child {
+    width: 10%;
+}
+
+.indeed td:nth-child(2) {
+    width: 80%;
+}
+
+.indeed td:nth-child(3) {
+    width: 5%;
+}
+
+.indeed td:nth-child(4) {
+    width: 5%;
+}
+
+.indeed td:nth-child(5) {
+    width: 5%;
+}
+
+.linkedin td:first-child {
+    width: 10%;
+}
+
+.linkedin td:nth-child(2) {
+    width: 80%;
+}
+
+.ziprecruiter td:first-child {
+    width: 10%;
+}
+
+.ziprecruiter td:nth-child(2) {
+    width: 80%;
+}
+
+.ziprecruiter td:nth-child(3) {
+    width: 5%;
+}
+
+.ziprecruiter td:nth-child(4) {
+    width: 5%;
+}
+
+.jobs{
+    width: 200% !important;
+    overflow-x: scroll;
+}
+.jobs td:first-child {
+    width: 5%;
+}
+
+.jobs td:nth-child(2) {
+    width: 20%;
+}
+
+.history{
+    width: 200% !important;
+    overflow-x: scroll;
+}
+
+/* .history td:first-child {
+    width: 10%;
+}
+
+.history td:nth-child(2) {
+    width: 20%;
+} */

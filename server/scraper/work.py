@@ -4,6 +4,7 @@ from apify_client import ApifyClient
 from datetime import datetime, timedelta
 import pytz
 
+
 class Serializer:
     def __init__(self, scraper=None):
         self.scraper = scraper
@@ -14,26 +15,26 @@ class Serializer:
 class SerializerDice(Serializer):
     def save(self, configuration, response, jobs, payload):
         try:            
-            number_of_days = 10
-            number_of_jobs = len(jobs)
+            numberOfDays = 10
+            numberOfJobs = len(jobs)
             print(f'SerializerDice: response jobs count = {len(jobs)}')
             # Save job
             if len(jobs) > 0: 
                 for job in jobs:
-                    job_title = job.get('title', '')
-                    job_description = job.get('description', '')
+                    jobTitle = job.get('title', '')
+                    Jobdescription = job.get('description', '')
                     salary = job.get('salaryRaw', '')
-                    job_type = job.get('salaryRawUnit', '')
+                    jobType = job.get('salaryRawUnit', '')
                     company = job.get('companyName', '')
                     location = job.get('location', '')
                        
-                    job_posted_days_ago = job.get('datePosted', 0)
-                    job_url = job.get('url', '')
-                    external_apply_url = job.get('applyUrl', 0)
+                    jobPostedAt = job.get('datePosted', 0)
+                    jobUrl = job.get('url', '')
+                    externalApplyUrl = job.get('applyUrl', 0)
                     
-                    new_job_result = jobboardscraperesults(
-                        Jobtitle=job_title,
-                        Jobdescription=job_description,
+                    jobResult = jobboardscraperesults(
+                        Jobtitle=jobTitle,
+                        Jobdescription=Jobdescription,
                         Source=self.scraper.actor_id,
                         Skill=configuration.Skill,
                         # Priority = configuration.Priority,
@@ -41,21 +42,21 @@ class SerializerDice(Serializer):
                         Dateinserted = datetime.now(pytz.utc),
                         ScrapedAt = response["startedAt"],
                         Runid=response['id'],
-                        PostedAt = job_posted_days_ago,
+                        PostedAt = jobPostedAt,
                         Salary = salary,
-                        JobType = job_type,
+                        JobType = jobType,
                         Company=company,
                         Location=location,
-                        Joburl=job_url,
+                        Joburl=jobUrl,
                         Jobid = job.get('id', ''),
                         JdIsmismatch = 0,
                         WhoJdIsmismatch = 0,
                         Iscomplexform = 0,
                         TodayDate = datetime.now(pytz.utc),
                         ApplyType=job.get('contractType'),
-                        Externalapplyurl=external_apply_url,                
+                        Externalapplyurl=externalApplyUrl,                
                     )      
-                    new_job_result.save()
+                    jobResult.save()
 
             
             history = jobboardscrapehistory(
@@ -65,14 +66,14 @@ class SerializerDice(Serializer):
                 Scrapername  = self.scraper.name,
                 Jobboard  = self.scraper.actor_name,
                 Url  = configuration.Url,
-                Days = number_of_days,
+                Days = numberOfDays,
                 Priority = configuration.Priority,
                 Skill  = configuration.Skill,
                 Beginningstate  = 'new task',
                 Endingstate  = response['status'],
                 Endingstatesetby  = response['actId'],
                 Logdetails = response['statusMessage'],
-                Numberofjobsreturned = number_of_jobs,
+                Numberofjobsreturned = numberOfJobs,
                 Rawjsonpassedtoscraper  = payload,
                 Rawjsonresponsefromapify  = response,
                 Runtime = response['stats']['runTimeSecs'],
@@ -85,31 +86,30 @@ class SerializerDice(Serializer):
             print(f'SerializerDice error: {str(err)}')            
             
         return
-   
-
+  
 class SerializerIndeed(Serializer):
     def save(self, configuration, response, jobs, payload):
         try:            
-            number_of_days = 10
-            number_of_jobs = len(jobs)
+            numberOfDays = 10
+            numberOfJobs = len(jobs)
             print(f'SerializerIndeed: response jobs count = {len(jobs)}')
             # Save job
             if len(jobs) > 0: 
                 for job in jobs:
-                    job_title = job.get('positionName', '')
-                    job_description = job.get('description', '')
+                    jobTitle = job.get('positionName', '')
+                    Jobdescription = job.get('description', '')
                     salary = job.get('salary', '')
-                    job_type = job.get('jobType', '')
+                    jobType = job.get('jobType', '')
                     company = job.get('company', '')
                     location = job.get('location', '')
                        
-                    job_posted_days_ago = job.get('postingDateParsed', 0)
-                    job_url = job.get('url', '')
-                    external_apply_url = job.get('externalApplyLink', 0)
+                    jobPostedAt = job.get('postingDateParsed', 0)
+                    jobUrl = job.get('url', '')
+                    externalApplyUrl = job.get('externalApplyLink', 0)
                     
-                    new_job_result = jobboardscraperesults(
-                        Jobtitle=job_title,
-                        Jobdescription=job_description,
+                    jobResult = jobboardscraperesults(
+                        Jobtitle=jobTitle,
+                        Jobdescription=Jobdescription,
                         Source=self.scraper.actor_id,
                         Skill=configuration.Skill,
                         # Priority = configuration.Priority,
@@ -117,21 +117,21 @@ class SerializerIndeed(Serializer):
                         Dateinserted = datetime.now(pytz.utc),
                         ScrapedAt = response["startedAt"],
                         Runid=response['id'],
-                        PostedAt = job_posted_days_ago,
+                        PostedAt = jobPostedAt,
                         Salary = salary,
-                        JobType = job_type,
+                        JobType = jobType,
                         Company=company,
                         Location=location,
-                        Joburl=job_url,
+                        Joburl=jobUrl,
                         Jobid = job.get('id', ''),
                         JdIsmismatch = 0,
                         WhoJdIsmismatch = 0,
                         Iscomplexform = 0,
                         TodayDate = datetime.now(pytz.utc),
                         ApplyType=job.get('applyType'),
-                        Externalapplyurl=external_apply_url,                
+                        Externalapplyurl=externalApplyUrl,                
                     )      
-                    new_job_result.save()
+                    jobResult.save()
 
             
             history = jobboardscrapehistory(
@@ -141,14 +141,14 @@ class SerializerIndeed(Serializer):
                 Scrapername  = self.scraper.name,
                 Jobboard  = self.scraper.actor_name,
                 Url  = configuration.Url,
-                Days = number_of_days,
+                Days = numberOfDays,
                 Priority = configuration.Priority,
                 Skill  = configuration.Skill,
                 Beginningstate  = 'new task',
                 Endingstate  = response['status'],
                 Endingstatesetby  = response['actId'],
                 Logdetails = response['statusMessage'],
-                Numberofjobsreturned = number_of_jobs,
+                Numberofjobsreturned = numberOfJobs,
                 Rawjsonpassedtoscraper  = payload,
                 Rawjsonresponsefromapify  = response,
                 Runtime = response['stats']['runTimeSecs'],
@@ -162,30 +162,29 @@ class SerializerIndeed(Serializer):
             
         return
    
-    
 class SerializerLinkedin(Serializer):
     def save(self, configuration, response, jobs, payload):
         try:            
-            number_of_days = 10
-            number_of_jobs = len(jobs)
+            numberOfDays = 10
+            numberOfJobs = len(jobs)
             print(f'SerializerLinkedin: response jobs count = {len(jobs)}')
             # Save job
             if len(jobs) > 0: 
                 for job in jobs:
-                    job_title = job.get('title', '')
-                    job_description = job.get('description', '')
+                    jobTitle = job.get('title', '')
+                    Jobdescription = job.get('description', '')
                     salary = job.get('salary', '')
-                    job_type = job.get('contractType', '')
+                    jobType = job.get('contractType', '')
                     company = job.get('companyName', '')
                     location = job.get('location', '')
                        
-                    job_posted_days_ago = job.get('postedTime', 0)
-                    job_url = job.get('jobUrl', '')
-                    external_apply_url = job.get('applyUrl', 0)
+                    jobPostedAt = job.get('postedTime', 0)
+                    jobUrl = job.get('jobUrl', '')
+                    externalApplyUrl = job.get('applyUrl', 0)
                     
-                    new_job_result = jobboardscraperesults(
-                        Jobtitle=job_title,
-                        Jobdescription=job_description,
+                    jobResult = jobboardscraperesults(
+                        Jobtitle=jobTitle,
+                        Jobdescription=Jobdescription,
                         Source=self.scraper.actor_id,
                         Skill=configuration.Skill,
                         # Priority = configuration.Priority,
@@ -193,21 +192,21 @@ class SerializerLinkedin(Serializer):
                         Dateinserted = datetime.now(pytz.utc),
                         ScrapedAt = response["startedAt"],
                         Runid=response['id'],
-                        PostedAt = job_posted_days_ago,
+                        PostedAt = jobPostedAt,
                         Salary = salary,
-                        JobType = job_type,
+                        JobType = jobType,
                         Company=company,
                         Location=location,
-                        Joburl=job_url,
+                        Joburl=jobUrl,
                         Jobid = job.get('id', ''),
                         JdIsmismatch = 0,
                         WhoJdIsmismatch = 0,
                         Iscomplexform = 0,
                         TodayDate = datetime.now(pytz.utc),
                         ApplyType=job.get('applyType'),
-                        Externalapplyurl=external_apply_url,                
+                        Externalapplyurl=externalApplyUrl,                
                     )      
-                    new_job_result.save()
+                    jobResult.save()
 
             
             history = jobboardscrapehistory(
@@ -217,14 +216,14 @@ class SerializerLinkedin(Serializer):
                 Scrapername  = self.scraper.name,
                 Jobboard  = self.scraper.actor_name,
                 Url  = configuration.Url,
-                Days = number_of_days,
+                Days = numberOfDays,
                 Priority = configuration.Priority,
                 Skill  = configuration.Skill,
                 Beginningstate  = 'new task',
                 Endingstate  = response['status'],
                 Endingstatesetby  = response['actId'],
                 Logdetails = response['statusMessage'],
-                Numberofjobsreturned = number_of_jobs,
+                Numberofjobsreturned = numberOfJobs,
                 Rawjsonpassedtoscraper  = payload,
                 Rawjsonresponsefromapify  = response,
                 Runtime = response['stats']['runTimeSecs'],
@@ -241,16 +240,16 @@ class SerializerLinkedin(Serializer):
 class SerializerZipRecruiter(Serializer):
     def save(self, configuration, response, jobs, payload):
         try:            
-            number_of_days = 10
-            number_of_jobs = len(jobs)
+            numberOfDays = 10
+            numberOfJobs = len(jobs)
             print(f'SerializerZipRecruiter: response jobs count = {len(jobs)}')
             # Save job
             if len(jobs) > 0: 
                 for job in jobs:
-                    job_title = job.get('Title', '')
-                    job_description = job.get('description', '')
+                    jobTitle = job.get('Title', '')
+                    Jobdescription = job.get('description', '')
                     salary = job.get('FormattedSalaryShort', '')
-                    job_type = job.get('EmploymentType', '')
+                    jobType = job.get('EmploymentType', '')
                     company = job.get('OrgName', '')
                     location = (
                         job.get('jobDetails', {})
@@ -258,17 +257,17 @@ class SerializerZipRecruiter(Serializer):
                         .get('gtmData', {})
                         .get('JobLocation', '')
                     )
-                    job_posted_days_ago = job.get('FirstSeenDaysAgo', 0)
-                    job_url = job.get('Href', '')
-                    apply_params = job.get('jobDetails', {}).get('model', {}).get('applyParams', {})
-                    if apply_params.get('isExternalApply'):
-                        external_apply_url = apply_params.get('externalApplyUrl')
+                    jobPostedAt = job.get('FirstSeenDaysAgo', 0)
+                    jobUrl = job.get('Href', '')
+                    applyParams = job.get('jobDetails', {}).get('model', {}).get('applyParams', {})
+                    if applyParams.get('isExternalApply'):
+                        externalApplyUrl = applyParams.get('externalApplyUrl')
                     else:
-                        external_apply_url = None
+                        externalApplyUrl = None
 
-                    new_job_result = jobboardscraperesults(
-                        Jobtitle=job_title,
-                        Jobdescription=job_description,
+                    jobResult = jobboardscraperesults(
+                        Jobtitle=jobTitle,
+                        Jobdescription=Jobdescription,
                         Source=self.scraper.actor_id,
                         Skill=configuration.Skill,
                         # Priority = configuration.Priority,
@@ -276,21 +275,21 @@ class SerializerZipRecruiter(Serializer):
                         Dateinserted = datetime.now(pytz.utc),
                         ScrapedAt = response["startedAt"],
                         Runid=response['id'],
-                        PostedAt = job_posted_days_ago,
+                        PostedAt = jobPostedAt,
                         Salary = salary,
-                        JobType = job_type,
+                        JobType = jobType,
                         Company=company,
                         Location=location,
-                        Joburl=job_url,
+                        Joburl=jobUrl,
                         Jobid = job.get('QuizID', ''),
                         JdIsmismatch = 0,
                         WhoJdIsmismatch = 0,
                         Iscomplexform = 0,
                         TodayDate = datetime.now(pytz.utc),
-                        ApplyType=apply_params.get('isZipApply'),
-                        Externalapplyurl=external_apply_url,                
+                        ApplyType=applyParams.get('isZipApply'),
+                        Externalapplyurl=externalApplyUrl,                
                     )      
-                    new_job_result.save()
+                    jobResult.save()
 
             
             history = jobboardscrapehistory(
@@ -300,14 +299,14 @@ class SerializerZipRecruiter(Serializer):
                 Scrapername  = self.scraper.name,
                 Jobboard  = self.scraper.actor_name,
                 Url  = configuration.Url,
-                Days = number_of_days,
+                Days = numberOfDays,
                 Priority = configuration.Priority,
                 Skill  = configuration.Skill,
                 Beginningstate  = 'new task',
                 Endingstate  = response['status'],
                 Endingstatesetby  = response['actId'],
                 Logdetails = response['statusMessage'],
-                Numberofjobsreturned = number_of_jobs,
+                Numberofjobsreturned = numberOfJobs,
                 Rawjsonpassedtoscraper  = payload,
                 Rawjsonresponsefromapify  = response,
                 Runtime = response['stats']['runTimeSecs'],
@@ -345,9 +344,9 @@ class ApiScraper:
         return
 
     def runConfig(self, configuration):
-        number_of_days = 1
+        numberOfDays = 1
         url = configuration.Url
-        url = url.replace('days=1', 'days=%s' % number_of_days) if 'days' in url else url
+        url = url.replace('days=1', 'days=%s' % numberOfDays) if 'days' in url else url
         payload = {
             'startUrls': [{'url': url, 'method': 'GET'}],
             'maxItems': 100,
@@ -385,38 +384,60 @@ class WorkItem:
         self.configurations = configurations
         self.serializer = serializer
 
+class ConfigurationItem:
+    def __init__(self, name, instance, serializer):
+        self.name = name
+        self.instance = instance
+        self.serializer = serializer  
+        
+configurationDictionary = [
+    { "name": 'Dice',           "config": configdice,           "serializer": SerializerDice},
+    { "name": 'Indeed',         "config": configindeed,         "serializer": SerializerIndeed},
+    { "name": 'Linkedin',       "config": configlinkedin,       "serializer": SerializerLinkedin},
+    { "name": 'ZipRecruiter',   "config": configziprecruiter,   "serializer": SerializerZipRecruiter}
+]
+
 class Worker:
     def __init__(self, name=None):
         print(f'Worker: init')
         self.name = name
         self.apiToken = ApifyKey.objects.first().value
         self.scrapers = Scraper.objects.filter(is_active=True)
-        self.configDice = configdice.objects.filter(Isactive=True)
-        self.configIndeed = configindeed.objects.filter(Isactive=True)
-        self.configLinkedin = configlinkedin.objects.filter(Isactive=True)
-        self.configZipRecruiter = configziprecruiter.objects.filter(Isactive=True)
+        self.configurationsInstances = []
+        for configItem in configurationDictionary:
+            configurationInstance = configItem['config'].objects.filter(Isactive=True)
+            scraper = self.getScraperByName(configItem['name'])
+            serializer = configItem['serializer'](scraper)
+
+            if configurationInstance != None and scraper != None and serializer != None:
+                configInstanceItem = ConfigurationItem(configItem['name'], configurationInstance, serializer)
+                self.configurationsInstances.append(configInstanceItem)
 
         self.workerDictionary = self.makeWorkerDictionary()
+
+    def getScraperByName(self, name):
+        for scraper in self.scrapers:
+            if scraper.name == name:
+                return scraper
+        return None
+
+    def getConfigurationInstanceByName(self, name):
+        for instanceItem in self.configurationsInstances:
+            if instanceItem.name == name:
+                return instanceItem            
+        return None
 
     def makeWorkerDictionary(self):        
         workerDictionary = []        
         for scraper in list(self.scrapers):
             worker = WorkItem(None, None, None)
             worker.scraper = scraper
-            if scraper.name == 'Dice':
-                worker.configurations = self.configDice
-                worker.serializer = SerializerDice(scraper)
-            elif scraper.name == 'Indeed':
-                worker.configurations = self.configIndeed
-                worker.serializer = SerializerIndeed(scraper)
-            elif scraper.name == 'Linkedin':
-                worker.configurations = self.configLinkedin
-                worker.serializer = SerializerLinkedin(scraper)
-            elif scraper.name == 'ZipRecruiter':
-                worker.configurations = self.configZipRecruiter
-                worker.serializer = SerializerZipRecruiter(scraper)
-            else:
+            configInstance = self.getConfigurationInstanceByName(scraper.name)
+            if configInstance == None:
                 worker = None
+            else:
+                worker.configurations = configInstance.instance
+                worker.serializer = configInstance.serializer
 
             if worker != None:
                 workerDictionary.append(worker)

@@ -47,10 +47,10 @@ CORS_ORIGIN_ALLOW_ALL=True
 
 
 # Postgres
-DB_HOST = env.str('DB_HOST')
-DB_NAME = env.str('DB_NAME')
-DB_USER = env.str('DB_USER')
-DB_PASSWORD = env.str('DB_PASSWORD')
+DB_HOST = env.str('DB_HOST_L')
+DB_NAME = env.str('DB_NAME_L')
+DB_USER = env.str('DB_USER_L')
+DB_PASSWORD = env.str('DB_PASSWORD_L')
 
 # Google Sheet
 SPREAD_SHEET_ID = env.str('SPREAD_SHEET_ID')

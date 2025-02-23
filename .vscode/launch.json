@@ -17,5 +17,25 @@
             ],
             "console": "integratedTerminal"
         },
+        {
+            "name": "server: (local)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "./setup.py",
+            "args": [
+               "local"
+            ],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "server: (online)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "./setup.py",
+            "args": [
+               
+            ],
+            "console": "integratedTerminal"
+        },
     ]
 }

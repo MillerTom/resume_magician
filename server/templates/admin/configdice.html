@@ -1,0 +1,31 @@
+{% extends "baselist.html" %}
+
+{% block title %}Dice Configurations{% endblock %}
+{% block tbname %}Dice Configuration Table View{% endblock %}
+{% block content %}
+  {% if items %}
+    {% for item in items %}
+      <table class="dice">
+        <tr>
+          <td>        
+            ({{item.Skill}})
+          </td>
+          <td>        
+            ({{item.Url}})
+          </td>
+          <td>        
+            ({{item.Isactive}})
+          </td>
+          <td>        
+            ({{item.Priority}})
+          </td>
+          <td>        
+            ({{item.Donetoday}})
+          </td>      
+        </tr>
+      </table>
+    {% endfor %}
+  {% else %}
+    <p>There are no jobs in tde table.</p>
+  {% endif %}
+{% endblock %}

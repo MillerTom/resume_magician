@@ -1,0 +1,69 @@
+{% extends "baseList.html" %}
+
+{% block title %}History{% endblock %}
+{% block content %}
+  {% if items %}
+    {% for item in items %}
+      <table class="history">    
+        <tr> 
+          <td>        
+            ({{item.Datescrapestarted}})
+          </td>
+          <td>        
+            ({{item.Datescrapeended}})
+          </td>
+          <td>        
+            ({{item.Runid}})
+          </td>
+          <td>        
+            ({{item.Scrapername}})
+          </td>
+          <td>        
+            ({{item.Jobboard}})
+          </td>
+          <td>        
+            ({{item.Url}})
+          </td>
+          <td>        
+            ({{item.Days}})
+          </td>
+          <td>        
+            ({{item.Priority}})
+          </td>
+          <td>        
+            ({{item.Skill}})
+          </td>
+          <td>        
+            ({{item.Beginningstate}})
+          </td>
+          <td>        
+            ({{item.Endingstate}})
+          </td>
+          <td>        
+            ({{item.Endingstatesetby}})
+          </td>
+          <td>        
+            ({{item.Logdetails}})
+          </td>
+          <td>        
+            ({{item.Numberofjobsreturned}})
+          </td>
+          <td>        
+            ({{item.Rawjsonpassedtoscraper}})
+          </td>
+          <td>        
+            ({{item.Rawjsonresponsefromapify}})
+          </td>
+          <td>        
+            ({{item.Runtime}})
+          </td>
+          <td>        
+            ({{item.Price}})
+          </td>
+        </tr>            
+      </table>
+    {% endfor %}
+  {% else %}
+    <p>There are no jobs in the table.</p>
+  {% endif %}
+{% endblock %}
