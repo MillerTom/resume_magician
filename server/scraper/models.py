@@ -14,12 +14,12 @@ class Scraper(models.Model):
         db_table = 'scrapers'
 
 
-class ApifyKey(models.Model):
+class ApiToken(models.Model):
     value = models.CharField(max_length=100, unique=True)
 
     class Meta:
-        verbose_name_plural = 'ApifyKeys'
-        db_table = 'ApifyKey'
+        verbose_name_plural = 'ApiTokens'
+        db_table = 'ApiToken'
 
 
 class configindeed(models.Model):   

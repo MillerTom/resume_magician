@@ -2,7 +2,7 @@ from django.contrib import admin
 
 from scraper.models import (
     Scraper,
-    ApifyKey,
+    ApiToken,
     configdice,
     configindeed,
     configlinkedin,
@@ -11,7 +11,7 @@ from scraper.models import (
     jobboardscraperesults
 )
 
-class ApifyKeyAdmin(admin.ModelAdmin):
+class ApiTokenAdmin(admin.ModelAdmin):
     list_display = ( 'id', 'value' )
     ordering = ('id',)
 
@@ -43,7 +43,7 @@ class jobboardscrapehistoryAdmin(admin.ModelAdmin):
     list_display = ( 'Datescrapestarted', 'Datescrapeended', 'Runid', 'Scrapername', 'Jobboard', 'Url', 'Days', 'Priority', 'Skill', 'Beginningstate', 'Endingstate',  'Endingstatesetby', 'Logdetails', 'Numberofjobsreturned', 'Rawjsonpassedtoscraper', 'Rawjsonresponsefromapify', 'Runtime', 'Price' )
 
 admin.site.register(Scraper, ScraperAdmin)
-admin.site.register(ApifyKey, ApifyKeyAdmin)
+admin.site.register(ApiToken, ApiTokenAdmin)
 admin.site.register(configdice, configdiceAdmin)
 admin.site.register(configindeed, configindeedAdmin)
 admin.site.register(configlinkedin, configlinkedinAdmin)

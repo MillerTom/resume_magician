@@ -1,4 +1,4 @@
-from scraper.models import ApifyKey, Scraper, configdice, configindeed, configlinkedin, configziprecruiter
+from scraper.models import ApiToken, Scraper, configdice, configindeed, configlinkedin, configziprecruiter
 from scraper.models import jobboardscraperesults, jobboardscrapehistory
 from apify_client import ApifyClient
 from datetime import datetime, timedelta
@@ -29,7 +29,7 @@ class Worker:
     def __init__(self, name=None):
         print(f'Worker: init')
         self.name = name
-        self.apiToken = ApifyKey.objects.first().value
+        self.apiToken = ApiToken.objects.first().value
         self.scrapers = Scraper.objects.filter(IsActive=True)
         self.configurationsInstances = []
         for configItem in configurationDictionary:
