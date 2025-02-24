@@ -30,7 +30,7 @@ class Worker:
         print(f'Worker: init')
         self.name = name
         self.apiToken = ApifyKey.objects.first().value
-        self.scrapers = Scraper.objects.filter(is_active=True)
+        self.scrapers = Scraper.objects.filter(IsActive=True)
         self.configurationsInstances = []
         for configItem in configurationDictionary:
             configurationInstance = configItem['config'].objects.filter(Isactive=True)
@@ -45,7 +45,7 @@ class Worker:
 
     def getScraperByName(self, name):
         for scraper in self.scrapers:
-            if scraper.name == name:
+            if scraper.Name == name:
                 return scraper
         return None
 
@@ -60,7 +60,7 @@ class Worker:
         for scraper in list(self.scrapers):
             worker = WorkItem(None, None, None)
             worker.scraper = scraper
-            configInstance = self.getConfigurationInstanceByName(scraper.name)
+            configInstance = self.getConfigurationInstanceByName(scraper.Name)
             if configInstance == None:
                 worker = None
             else:
@@ -82,7 +82,7 @@ class Worker:
     
     def getWorker(self, name):
         for worker in self.workerDictionary:
-            if worker.scraper.name == name:
+            if worker.scraper.Name == name:
                 return worker
         return None
 
@@ -90,7 +90,7 @@ class Worker:
     def scrapeAll(self):
         print(f'Worker: scrapeAll')
         for scraper in list(self.scrapers):
-            worker = self.getWorker(scraper.name)
+            worker = self.getWorker(scraper.Name)
             if worker != None:
                 singleScraper = ApiScraper(worker=worker, apiToken=self.apiToken)
                 singleScraper.run()

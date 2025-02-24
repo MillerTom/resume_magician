@@ -16,8 +16,8 @@ class ApifyKeyAdmin(admin.ModelAdmin):
     ordering = ('id',)
 
 class ScraperAdmin(admin.ModelAdmin):
-    list_display = ( 'name', 'actor_id', 'actor_name', 'is_active', 'created_at' )
-    ordering = ('name',)
+    list_display = ( 'Name', 'ActorID', 'ActorName', 'IsActive', 'CreatedAt' )
+    ordering = ('Name',)
 
 class configdiceAdmin(admin.ModelAdmin):
     list_display = ('id', 'Skill', 'Url', 'Isactive', 'Priority')

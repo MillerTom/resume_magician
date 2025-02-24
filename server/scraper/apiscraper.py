@@ -9,7 +9,7 @@ class ApiScraper:
         if worker != None:
             self.scraper = worker.scraper
             self.configurations = list(worker.configurations)        
-            self.actorId = self.scraper.actor_id
+            self.actorId = self.scraper.ActorID
             self.serializer = worker.serializer
         else:
             self.scraper = None

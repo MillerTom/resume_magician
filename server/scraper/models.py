@@ -3,11 +3,11 @@ import uuid
 
 
 class Scraper(models.Model):
-    name = models.CharField(max_length=50)
-    actor_id = models.CharField(max_length=100)
-    actor_name = models.CharField(max_length=500)
-    is_active = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    Name = models.CharField(max_length=50)
+    ActorID = models.CharField(max_length=100)
+    ActorName = models.CharField(max_length=500)
+    IsActive = models.BooleanField(default=True)
+    CreatedAt = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         verbose_name_plural = 'Scraper'
@@ -18,8 +18,8 @@ class ApifyKey(models.Model):
     value = models.CharField(max_length=100, unique=True)
 
     class Meta:
-        verbose_name_plural = 'Apify API Key'
-        db_table = 'apify_key'
+        verbose_name_plural = 'ApifyKeys'
+        db_table = 'ApifyKey'
 
 
 class configindeed(models.Model):   
