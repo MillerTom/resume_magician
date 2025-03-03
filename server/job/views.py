@@ -42,10 +42,10 @@ class GetJobRecordsView(generics.GenericAPIView):
         try:
             QUERY = (
                 "SELECT A, B, I, N, O "
-                "WHERE X != TRUE AND "
+                "WHERE (X IS NULL OR X != TRUE) AND "
                 "N != '' AND "
                 "Q = '' AND "
-                "AA = '' AND "
+                "AA != 'locked' AND "
                 "AD = '' AND "
                 "AF = '' "
                 "ORDER BY E "
@@ -94,13 +94,13 @@ class JobApplyStartView(generics.GenericAPIView):
 
             sheet = client.open(settings.GOOGLE_SHEET_NAME).get_worksheet_by_id(settings.SHEET_ID)
             jobIndex = -1
-            QUERY = "SELECT N, AG WHERE AA != '1'"
+            QUERY = "SELECT N, AG WHERE AA != 'locked'"
             data = execute_gviz_query(QUERY)
             for row_index, row in enumerate(data['table']['rows']):
                 if row['c'][0]['v'] == job_url:
                     jobIndex = int(row['c'][1]['v']) + 1
                     print(jobIndex)
-                    sheet.update_cell(jobIndex, lockColumnIndex, '1')
+                    sheet.update_cell(jobIndex, lockColumnIndex, 'locked')
                     sheet.update_cell(jobIndex, startedAtColumnIndex, str(now))
                     break
             if jobIndex >= 0:
@@ -147,7 +147,7 @@ class JobRejectView(generics.GenericAPIView):
             reject_reason = data['rejectReason']
             job_url = data['jobUrl']
             sheet = client.open(settings.GOOGLE_SHEET_NAME).get_worksheet_by_id(settings.SHEET_ID)
-            QUERY = "SELECT N, AG WHERE AA != '1'"
+            QUERY = "SELECT N, AG WHERE AA != 'locked'"
             data = execute_gviz_query(QUERY)
             for row_index, row in enumerate(data['table']['rows']):
                 if row['c'][0]['v'] == job_url:

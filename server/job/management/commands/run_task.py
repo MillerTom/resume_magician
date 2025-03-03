@@ -17,19 +17,34 @@ class Command(BaseCommand):
     help = 'Runs a task periodically'
 
     def handle(self, *args, **kwargs):
+        rows = []
         now = int(time.time())
         print(f"=== Running task {str(now)}")
+        QUERY = (
+            "SELECT AB, AG "
+            "WHERE AA = 1"
+        )
+        data = execute_gviz_query(QUERY)
+
+        rows.extend(data['table']['rows'])
         QUERY = (
             "SELECT AB, AG "
             "WHERE AA = '1'"
         )
         data = execute_gviz_query(QUERY)
+        rows.extend(data['table']['rows'])
+        print(f'--- fetched {len(rows)}')
+
         sheet = client.open(settings.GOOGLE_SHEET_NAME).get_worksheet_by_id(settings.SHEET_ID)
         for row in data['table']['rows']:
-            started_at = row['c'][0]['v']
-            started_at = int(started_at)
-            print(started_at, int(row['c'][1]['v']))
-            if now - started_at > 3600:
-                row_index = int(row['c'][1]['v']) + 1
-                sheet.update_cell(row_index, lockColumnIndex, '')
-                sheet.update_cell(row_index, startedAtColumnIndex, '')
+            try:
+                started_at = row['c'][0]['v']
+                started_at = int(started_at)
+                print(started_at, int(row['c'][1]['v']))
+                if now - started_at > 3600:
+                    row_index = int(row['c'][1]['v']) + 1
+                    sheet.update_cell(row_index, lockColumnIndex, '')
+                    sheet.update_cell(row_index, startedAtColumnIndex, '')
+                    time.sleep(1)
+            except Exception as err:
+                print(f'--- error: {str(err)}')
