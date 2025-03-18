@@ -44,78 +44,78 @@ def safe_parse(date_str):
 class GetJobRecordsView(generics.GenericAPIView):
     @is_authenticated
     def post(self, request):
-        # try:
-        if is_google_sheet():
-            QUERY = (
-                "SELECT A, B, I, N, O "
-                "WHERE (X IS NULL OR X != TRUE) AND "
-                "N != '' AND "
-                "(Q = '' OR Q IS NULL) AND "
-                "(AA != 'locked' OR AA IS NULL) AND "
-                "(AD = '' OR AD IS NULL) AND "
-                "(AF = '' OR AF IS NULL) "
-                "ORDER BY E "
-                "LIMIT 1"
-            )
-            data = execute_gviz_query(QUERY)
-            print(data['table']['rows'])
-            job = {
-                'jobTitle':         data['table']['rows'][0]['c'][0]['v'],
-                'jobDescription':   data['table']['rows'][0]['c'][1]['v'],
-                'datePosted':       data['table']['rows'][0]['c'][2]['v'],
-                'jobUrl':           data['table']['rows'][0]['c'][3]['v'],
-                'resume':           data['table']['rows'][0]['c'][4]['v'],
-            }
+        try:
+            if is_google_sheet():
+                QUERY = (
+                    "SELECT A, B, I, N, O "
+                    "WHERE (X IS NULL OR X != TRUE) AND "
+                    "N != '' AND "
+                    "(Q = '' OR Q IS NULL) AND "
+                    "(AA != 'locked' OR AA IS NULL) AND "
+                    "(AD = '' OR AD IS NULL) AND "
+                    "(AF = '' OR AF IS NULL) "
+                    "ORDER BY E "
+                    "LIMIT 1"
+                )
+                data = execute_gviz_query(QUERY)
+                print(data['table']['rows'])
+                job = {
+                    'jobTitle':         data['table']['rows'][0]['c'][0]['v'],
+                    'jobDescription':   data['table']['rows'][0]['c'][1]['v'],
+                    'datePosted':       data['table']['rows'][0]['c'][2]['v'],
+                    'jobUrl':           data['table']['rows'][0]['c'][3]['v'],
+                    'resume':           data['table']['rows'][0]['c'][4]['v'],
+                }
 
-            QUERY = "SELECT D "
-            data = execute_gviz_query(QUERY)
-            skills = data['table']['rows']
-            skills = [x['c'][0]['v'] for x in skills]
+                QUERY = "SELECT D "
+                data = execute_gviz_query(QUERY)
+                skills = data['table']['rows']
+                skills = [x['c'][0]['v'] for x in skills]
+                unique_skills = list(set(skills))
+            else:
+                job = JobBoardResult.objects.filter(
+                    Q(is_easyapply=False) &
+                    ~Q(job_url=None) &
+                    Q(date_applied_for=None) &
+                    Q(lock_application=False) &
+                    Q(date_job_removed_from_site=None) &
+                    Q(problem_applying_description='')
+                ).annotate(
+                    config_priority=F('configuration__priority')
+                ).order_by(
+                    'config_priority'
+                ).first()
+                print("===============", job.configuration.priority)
+                # order_by('date_job_posted').first()
+                job = {
+                    'jobTitle':         job.job_title,
+                    'jobDescription':   job.job_description,
+                    'datePosted':       job.date_job_posted,
+                    'jobUrl':           job.job_url,
+                    'resume':           job.customized_resume_url,
+                }
+
+                skills = JobBoardResult.objects.values_list('skill', flat=True)
+                skills = list(skills)
+
             unique_skills = list(set(skills))
-        else:
-            job = JobBoardResult.objects.filter(
-                Q(is_easyapply=False) &
-                ~Q(job_url=None) &
-                Q(date_applied_for=None) &
-                Q(lock_application=False) &
-                Q(date_job_removed_from_site=None) &
-                Q(problem_applying_description='')
-            ).annotate(
-                config_priority=F('configuration__priority')
-            ).order_by(
-                'config_priority'
-            ).first()
-            print("===============", job.configuration.priority)
-            # order_by('date_job_posted').first()
-            job = {
-                'jobTitle':         job.job_title,
-                'jobDescription':   job.job_description,
-                'datePosted':       job.date_job_posted,
-                'jobUrl':           job.job_url,
-                'resume':           job.customized_resume_url,
-            }
+            backlog = {}
+            for skill in unique_skills:
+                backlog[skill] = skills.count(skill)
 
-            skills = JobBoardResult.objects.values_list('skill', flat=True)
-            skills = list(skills)
-
-        unique_skills = list(set(skills))
-        backlog = {}
-        for skill in unique_skills:
-            backlog[skill] = skills.count(skill)
-
-        leaderboard = []
-        userinfos = UserInfo.objects.all()
-        for userinfo in userinfos:
-            jobs = Job.objects.filter(user=userinfo).all()
-            leaderboard.append({
-                'name': userinfo.name,
-                'email': userinfo.email,
-                'num_applied_jobs': len(jobs),
-            })
-        return Response({'job': job, 'backlog': backlog, 'leaderboard': leaderboard}, status=http_status.HTTP_200_OK)
-        # except Exception as err:
-        #     print(f'=== GetRecordError: {str(err)}')
-        #     return Response(status=http_status.HTTP_404_NOT_FOUND)
+            leaderboard = []
+            userinfos = UserInfo.objects.all()
+            for userinfo in userinfos:
+                jobs = Job.objects.filter(user=userinfo).all()
+                leaderboard.append({
+                    'name': userinfo.name,
+                    'email': userinfo.email,
+                    'num_applied_jobs': len(jobs),
+                })
+            return Response({'job': job, 'backlog': backlog, 'leaderboard': leaderboard}, status=http_status.HTTP_200_OK)
+        except Exception as err:
+            print(f'=== GetRecordError: {str(err)}')
+            return Response(status=http_status.HTTP_404_NOT_FOUND)
 
 
 class JobApplyStartView(generics.GenericAPIView):
