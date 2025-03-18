@@ -60,6 +60,7 @@ function ApplyJobPage({ name, email }) {
 		.then((response) => {
 			console.log(response);
 			setLoading(false);
+			window.location.reload();
 		})
 		.catch((error) => {
 			console.log(error);
