@@ -99,6 +99,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'job',
     'scraper',
+    'setting',
 ]
 
 MIDDLEWARE = [

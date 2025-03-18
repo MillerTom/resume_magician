@@ -4,16 +4,15 @@ import { useNavigate } from 'react-router-dom';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import Paper from '@mui/material/Paper';
 import { Button } from '@mui/material';
+import { SERVER_URL } from './constants';
 
 function ApplyJobPage({ name }) {
-	const serverUrl = 'http://localhost:5000';
-
 	const [isApplyPage, setIsApplyPage] = useState(false);
 	const [records, setRecords] = useState([]);
 	const [rows, setRows] = useState([]);
-  const [page, setPage] = useState(0);
-  const [pageSize, setPageSize] = useState(100);
-  const [rowCount, setRowCount] = useState(0);
+	const [page, setPage] = useState(0);
+	const [pageSize, setPageSize] = useState(100);
+	const [rowCount, setRowCount] = useState(0);
 
 	const columns = [
 		{ field: 'id', headerName: 'ID' },
@@ -45,7 +44,7 @@ function ApplyJobPage({ name }) {
 	useEffect(() => {
 		const token = localStorage.getItem('aToken');
 
-		axios.post(`${serverUrl}/auth/get/records/`, {startPage: 0}, {
+		axios.post(`${SERVER_URL}/auth/get/records/`, {startPage: 0}, {
 			headers: {
 				'Content-Type': 'application/json',
 				'Authorization': `Bearer ${token}`
@@ -54,10 +53,10 @@ function ApplyJobPage({ name }) {
 		.then((response) => {
 			const { records } = response.data;
 			console.log(records);
-      const start = page * pageSize;
-      const end = start + pageSize;
-      setRows(records.slice(start, end));
-      setRowCount(records.length);
+			const start = page * pageSize;
+			const end = start + pageSize;
+			setRows(records.slice(start, end));
+			setRowCount(records.length);
 			setRecords(records);
 		})
 		.catch((error) => {
@@ -65,14 +64,14 @@ function ApplyJobPage({ name }) {
 		})
 	}, []);
 
-  useEffect(() => {
+	useEffect(() => {
 		const start = page * pageSize;
 		const end = start + pageSize;
 		setRows(records.slice(start, end));
-  }, [page, pageSize]);
+	}, [page, pageSize]);
 
-  return (
-    <div style={{display: 'flex', height: 'calc(100vh - 64px)'}}>
+	return (
+		<div style={{display: 'flex', height: 'calc(100vh - 64px)'}}>
 			<div style={{width: '240px', padding: '16px', borderRight: '1px solid lightblue'}}>
 				<Button
 					style={{width: '100%', justifyContent: 'flex-start', color: 'black'}}
@@ -103,8 +102,8 @@ function ApplyJobPage({ name }) {
 					) : 'Loading...'
 				): (<span>Homepage</span>)}
 			</div>
-    </div>
-  );
+		</div>
+	);
 }
 
 export default ApplyJobPage;

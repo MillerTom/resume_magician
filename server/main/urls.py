@@ -24,5 +24,6 @@ urlpatterns = [
     path('auth/', include('auth.urls')),
     path('job/', include('job.urls')),
     path('scraper/', include('scraper.urls')),
+    path('setting/', include('setting.urls')),
 ]
 urlpatterns += static('static/', document_root=settings.STATIC_ROOT)

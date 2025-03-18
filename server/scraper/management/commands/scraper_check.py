@@ -44,6 +44,9 @@ class Command(BaseCommand):
                     else:
                         external_apply_url = None
 
+                    # Check if same job is already scraped and added to database.
+                    new_job_result = JobBoardResult.objects.filter(job_url=job_url).first()
+                    if new_job_result: continue
                     new_job_result = JobBoardResult(
                         configuration=configuration,
                         job_title=job_title,
@@ -60,7 +63,7 @@ class Command(BaseCommand):
                         job_url=job_url,
                         is_easyapply= True if apply_params.get('isZipApply') else False,
                         external_apply_url=external_apply_url,
-                    )      
+                    )
                     new_job_result.save()
 
                 if history.status != 'SUCCEEDED' or number_of_jobs == 0:
