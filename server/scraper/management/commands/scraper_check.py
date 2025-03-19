@@ -28,7 +28,6 @@ class Command(BaseCommand):
 
                 # Save job
                 for job in jobs:
-                    number_of_jobs += 1
                     if configuration.scraper.name.lower() == 'ziprecruiter':
                         job_title = job.get('Title', '')
                         job_description = job.get('description', '')
@@ -115,14 +114,15 @@ class Command(BaseCommand):
                         external_apply_url=external_apply_url,
                     )
                     new_job_result.save()
+                    number_of_jobs += 1
 
                 if history.status != 'SUCCEEDED' or number_of_jobs == 0:
-                    print('Failed: ', history.id)
+                    print(f'Failed: {history.id}')
                     if history.days == history.configuration.days:
                         run_actor(scraper, configuration, configuration.days + 1)
                 else:
                     history.number_of_jobs = number_of_jobs
-                    print('Succeed: ', history.id)
+                    print(f'Succeed: {history.id} with ({number_of_jobs}jobs)')
                 history.is_done = True
                 history.save()
             except Exception as err:
