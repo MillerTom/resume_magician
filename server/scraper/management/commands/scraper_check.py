@@ -10,6 +10,7 @@ class Command(BaseCommand):
     help = 'Check Scraper History Periodically'
 
     def handle(self, *args, **kwargs):
+        print('*** Running Scraper Check ***')
         apify_key = ApifyKey.objects.first()
         APIFY_API_KEY = apify_key.value
         histories = ScrapeHistory.objects.filter(is_done=False).all()
@@ -17,6 +18,7 @@ class Command(BaseCommand):
             try:
                 configuration = history.configuration
                 scraper = configuration.scraper
+                print(f'* Configuration: {configuration.url} - {scraper.name}')
                 actor_id = scraper.actor_id
                 apify_client = CustomApifyClient(APIFY_API_KEY, actor_id)
 
@@ -93,7 +95,7 @@ class Command(BaseCommand):
                     # Check if same job is already scraped and added to database.
                     new_job_result = JobBoardResult.objects.filter(job_url=job_url).first()
                     if new_job_result:
-                        print("Job duplicated", job_url)
+                        print('Job duplicated', job_url)
                         continue
                     new_job_result = JobBoardResult(
                         configuration=configuration,
@@ -115,12 +117,12 @@ class Command(BaseCommand):
                     new_job_result.save()
 
                 if history.status != 'SUCCEEDED' or number_of_jobs == 0:
-                    print("Failed: ", history.id)
+                    print('Failed: ', history.id)
                     if history.days == history.configuration.days:
                         run_actor(scraper, configuration, configuration.days + 1)
                 else:
                     history.number_of_jobs = number_of_jobs
-                    print("Succeed: ", history.id)
+                    print('Succeed: ', history.id)
                 history.is_done = True
                 history.save()
             except Exception as err:

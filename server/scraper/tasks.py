@@ -11,6 +11,7 @@ def run_actor(scraper, configuration, days=-1):
         payload = {
             'startUrls': [{'url': url, 'method': 'GET'}],
             'maxItems': 100,
+            'rowNumber': 100,
             'maxConcurrency': 10,
             'minConcurrency': 1,
             'maxRequestRetries': 30,
@@ -26,6 +27,7 @@ def run_actor(scraper, configuration, days=-1):
             'location': 'United States',
             'workplaceType': ['remote'],
             'maxItems': 100,
+            'rowNumber': 100,
             'maxConcurrency': 10,
             'minConcurrency': 1,
             'maxRequestRetries': 30,
