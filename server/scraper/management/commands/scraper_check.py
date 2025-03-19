@@ -28,6 +28,7 @@ class Command(BaseCommand):
 
                 # Save job
                 for job in jobs:
+                    number_of_jobs += 1
                     if configuration.scraper.name.lower() == 'ziprecruiter':
                         job_title = job.get('Title', '')
                         job_description = job.get('description', '')
@@ -114,7 +115,6 @@ class Command(BaseCommand):
                         external_apply_url=external_apply_url,
                     )
                     new_job_result.save()
-                    number_of_jobs += 1
 
                 if history.status != 'SUCCEEDED' or number_of_jobs == 0:
                     print(f'Failed: {history.id}')
