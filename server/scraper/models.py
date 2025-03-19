@@ -17,7 +17,7 @@ class Scraper(models.Model):
 class Configuration(models.Model):
     scraper = models.ForeignKey(Scraper, related_name='scraper_configurations', on_delete=models.CASCADE, null=True)
     skill = models.CharField(max_length=200)
-    url = models.URLField()
+    url = models.URLField(max_length=500, null=True, blank=True)
     priority = models.IntegerField(default=0)
     days = models.IntegerField(default=1)
     is_active = models.BooleanField(default=True)
@@ -38,7 +38,7 @@ class JobBoardResult(models.Model):
     date_scraped = models.DateTimeField(null=True)
     run_id = models.CharField(max_length=50, default='')
     date_job_posted = models.DateTimeField(null=True)
-    salary = models.CharField(default=50)
+    salary = models.CharField(max_length=100, null=True)
     job_type = models.CharField(max_length=50, default='')
     company = models.CharField(max_length=100, default='')
     location = models.CharField(max_length=100, default='')

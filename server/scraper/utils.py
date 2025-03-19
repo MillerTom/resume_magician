@@ -1,11 +1,16 @@
 from apify_client import ApifyClient
 from datetime import datetime, timedelta
 import pytz
+import re
 
 def get_datetime(day):
     now_utc = datetime.now(pytz.utc)
     actual_date = now_utc - timedelta(days=day)
     return actual_date
+
+def is_valid_email(email):
+    pattern = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
+    return re.match(pattern, email) is not None
 
 class CustomApifyClient:
     actor_id = ''
