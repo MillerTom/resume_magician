@@ -63,6 +63,9 @@ STARTED_AT_COLUMN_INDEX = 28
 APPLIED_FOR_DATE_COLUMN_INDEX = 17
 PROBLEM_APPLYING_COLUMN_INDEX = 32
 
+# OpenAI API Key
+OPENAI_API_KEY = env.str('OPENAI_API_KEY')
+
 # Azure AD Configuration
 AZURE_AD_OAUTH2_KEY = env.str('AZURE_AD_OAUTH2_KEY')
 AZURE_AD_OAUTH2_SECRET = env.str('AZURE_AD_OAUTH2_SECRET')
@@ -100,6 +103,7 @@ INSTALLED_APPS = [
     'job',
     'scraper',
     'setting',
+    'resume',
 ]
 
 MIDDLEWARE = [

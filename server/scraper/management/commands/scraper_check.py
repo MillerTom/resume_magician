@@ -22,7 +22,16 @@ class Command(BaseCommand):
                 actor_id = scraper.actor_id
                 apify_client = CustomApifyClient(APIFY_API_KEY, actor_id)
 
-                # Retry with modified number_of_days
+                run_status = apify_client.client.run(history.run_id).get()
+                if run_status['status'] == 'SUCCEEDED':
+                    history.status = run_status['status']
+                    history.finished_at=run_status['finishedAt']
+                    history.run_time=run_status['stats']['runTimeSecs']
+                    history.dataset_id=run_status['defaultDatasetId'],
+                    history.save()
+                else:
+                    continue
+
                 jobs = apify_client.client.dataset(history.dataset_id).iterate_items()
                 number_of_jobs = 0
 
@@ -119,6 +128,7 @@ class Command(BaseCommand):
                 if history.status != 'SUCCEEDED' or number_of_jobs == 0:
                     print(f'Failed: {history.id}')
                     if history.days == history.configuration.days:
+                        # Retry with modified number_of_days
                         run_actor(scraper, configuration, configuration.days + 1)
                 else:
                     history.number_of_jobs = number_of_jobs
