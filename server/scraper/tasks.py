@@ -57,14 +57,11 @@ def run_actor(scraper, configuration, days=-1):
 
         history = ScrapeHistory(
             configuration=configuration,
-            finished_at=response['finishedAt'],
             run_id=response['id'],
-            dataset_id=response['defaultDatasetId'],
             job_board=scraper.name,
             days=configuration.days if days == -1 else days,
             status=response['status'],
             input_json=payload,
-            run_time=response['stats']['runTimeSecs'],
             price=price,
         )
         history.save()

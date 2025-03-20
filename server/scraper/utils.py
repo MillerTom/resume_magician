@@ -20,4 +20,4 @@ class CustomApifyClient:
         self.actor_id = actor_id
 
     def start_actor(self, payload):
-        return self.client.actor(self.actor_id).call(run_input=payload)
+        return self.client.actor(self.actor_id).start(run_input=payload, wait_for_finish=False)

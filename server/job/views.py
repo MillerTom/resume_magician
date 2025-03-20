@@ -13,7 +13,6 @@ from dateutil import parser
 from auth.utils import is_authenticated
 from job.models import UserInfo, Job
 from job.utils import execute_gviz_query
-from setting.models import DataSource
 from setting.utils import is_google_sheet
 from scraper.models import JobBoardResult
 
