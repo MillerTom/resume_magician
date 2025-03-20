@@ -59,3 +59,4 @@ uritemplate==4.1.1
 urllib3==2.3.0
 drf_yasg==1.21.8
 apify_client==1.8.1
+celery==5.4.0

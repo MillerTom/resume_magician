@@ -1,5 +1,12 @@
 from django.urls import path
-from job.views import GetJobRecordsView, JobApplyStartView, JobAppliedView, JobRejectView, DownloadResumeView, AsyncRunView
+from job.views import (
+    GetJobRecordsView,
+    JobApplyStartView,
+    JobAppliedView,
+    JobRejectView,
+    DownloadResumeView,
+    AsyncRunView,
+)
 
 urlpatterns = [
     path('get/records/', GetJobRecordsView.as_view(), name='get_records'),

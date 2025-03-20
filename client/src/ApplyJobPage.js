@@ -18,6 +18,7 @@ function ApplyJobPage({ name, email }) {
 	const [loading, setLoading] = useState(false);
 	const [rejection, setRejection] = useState({isRejection: false, content: ''});
 	const [jobDescripton, setJobDescription] = useState({isReadmore: true, content: ''});
+	const [dataSource, setDataSource] = useState('');
 
 	const getNewJob = () => {
 		setJob({});
@@ -36,7 +37,8 @@ function ApplyJobPage({ name, email }) {
 		})
 		.catch((error) => {
 			checkError(error);
-		})
+			if (error.response.status === 404) alert('No job found. Please reload the page and try again.');
+		});
 	}
 
 	const checkError = (error) => {
@@ -47,8 +49,39 @@ function ApplyJobPage({ name, email }) {
 		}
 	}
 
+	const updateDataSource = () => {
+		setLoading(true);
+		axios.post(`${SERVER_URL}/setting/data_source/update/`, {data_source: dataSource}, {
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': `Bearer ${token}`
+			},
+		})
+		.then((response) => {
+			console.log(response);
+			setLoading(false);
+			window.location.reload();
+		})
+		.catch((error) => {
+			console.log(error);
+			setLoading(false);
+		});
+	}
+
 	useEffect(() => {
-		getNewJob();
+		axios.get(`${SERVER_URL}/setting/data_source/get/`, {
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': `Bearer ${token}`,
+			},
+		})
+		.then((response) => {
+			setDataSource(response.data.data_source);
+			getNewJob();
+		})
+		.catch((error) => {
+			console.log('data_source error', error);
+		})
 	}, []);
 
 	return (
@@ -118,8 +151,8 @@ function ApplyJobPage({ name, email }) {
 							</p>
 							{rejection.isRejection ? (
 								<TextField
-									label="Reject Reason"
-									variant="outlined"
+									label='Reject Reason'
+									variant='outlined'
 									value={rejection.content}
 									onChange={(e) => {setRejection({...rejection, content: e.target.value})}}
 									fullWidth
@@ -149,6 +182,7 @@ function ApplyJobPage({ name, email }) {
 											})
 											.catch((error) => {
 												checkError(error);
+												if (error.response.status === 400) alert('Starting job apply failed. Please try again later.');
 											})
 										} else {
 											setIsPendingApply(false);
@@ -177,10 +211,11 @@ function ApplyJobPage({ name, email }) {
 											})
 											.catch((error) => {
 												checkError(error);
+												if (error.response.status === 400) alert('Finishing job apply failed. Please try again later.');
 											})
 										}
 									}}
-									disabled={(isPendingApply && jobIndex < 0) || loading ? true : false}
+									disabled={(isPendingApply && jobIndex === -1) || loading ? true : false}
 								>
 									{isPendingApply ? 'Finished applying' : 'Apply For Job'}
 								</Button>
@@ -201,6 +236,7 @@ function ApplyJobPage({ name, email }) {
 										})
 										.catch((error) => {
 											checkError(error);
+											if (error.response.status === 400) alert('Rejecting job apply failed. Please try again later.');
 										})
 									}
 									setRejection({...rejection, isRejection: !rejection.isRejection});
@@ -214,6 +250,30 @@ function ApplyJobPage({ name, email }) {
 						</>
 					) : 'Loading...'
 				): (<div>
+					<h3>Use Data From</h3>
+					<div style={{display: 'flex', alignItems: 'center', gap: '12px'}}>
+						<label>
+							<input
+								type='radio'
+								value='google_sheet'
+								name='data_source'
+								checked={dataSource === 'google_sheet'}
+								onChange={() => {setDataSource('google_sheet')}}
+							/>
+							Google Sheet
+						</label>
+						<label>
+							<input
+								type='radio'
+								value='database'
+								name='data_source'
+								checked={dataSource === 'database'}
+								onChange={() => {setDataSource('database')}}
+							/>
+							PostgreSQL
+						</label>
+						<Button onClick={() => {updateDataSource()}} disabled={loading}>Save</Button>
+					</div>
 					<h3>BACKLOG METRICS</h3>
 					{
 						Object.keys(backlog).map(item => (

@@ -73,9 +73,18 @@ LOGIN_REDIRECT_URL = env.str('LOGIN_REDIRECT_URL')
 LOGIN_ERROR_URL = '/login-error/'
 REDIRECT_IS_HTTPS = True
 
-AZURE_AD_AUTH_URL = f"https://login.microsoftonline.com/{AZURE_AD_OAUTH2_TENANT_ID}/oauth2/v2.0/authorize"
-AZURE_AD_TOKEN_URL = f"https://login.microsoftonline.com/{AZURE_AD_OAUTH2_TENANT_ID}/oauth2/v2.0/token"
+AZURE_AD_AUTH_URL = f'https://login.microsoftonline.com/{AZURE_AD_OAUTH2_TENANT_ID}/oauth2/v2.0/authorize'
+AZURE_AD_TOKEN_URL = f'https://login.microsoftonline.com/{AZURE_AD_OAUTH2_TENANT_ID}/oauth2/v2.0/token'
 
+# Scraper Run Status
+SCRAPER_RUN_STATUS = {
+    'READY': 'READY',
+    'RUNNING': 'RUNNING',
+    'SUCCEEDED': 'SUCCEEDED',
+    'FAILED': 'FAILED',
+    'TIMED_OUT': 'TIMED_OUT',
+    'ABORTED': 'ABORTED',
+}
 
 # Application definition
 
@@ -89,6 +98,8 @@ INSTALLED_APPS = [
     'social_django',
     'corsheaders',
     'job',
+    'scraper',
+    'setting',
 ]
 
 MIDDLEWARE = [
@@ -133,8 +144,8 @@ DATABASES = {
         'NAME': DB_NAME,
         'USER': DB_USER,
         'PASSWORD': DB_PASSWORD,
-        'HOST': DB_HOST,  # Or the IP address of your database server
-        'PORT': '5432',  # Default port for PostgreSQL
+        'HOST': DB_HOST,
+        'PORT': '5432',
     }
 }
 
@@ -181,6 +192,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
