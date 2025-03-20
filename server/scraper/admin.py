@@ -3,6 +3,7 @@ from scraper.models import (
     Scraper,
     Configuration,
     JobBoardResult,
+    JobBoardResume,
     ScrapeHistory,
     ApifyKey,
 )
@@ -18,3 +19,7 @@ class ScrapeHistoryAdmin(admin.ModelAdmin):
 @admin.register(JobBoardResult)
 class JobBoardResultAdmin(admin.ModelAdmin):
     list_display = [field.name for field in JobBoardResult._meta.get_fields()]
+
+@admin.register(JobBoardResume)
+class JobBoardResumeAdmin(admin.ModelAdmin):
+    list_display = [field.name for field in JobBoardResume._meta.get_fields()]

@@ -6,6 +6,7 @@ from rest_framework import generics, status as http_status
 from scraper.models import Scraper, JobBoardResult
 from scraper.serializers import JobsSerializer, PullJobSerializer
 from scraper.tasks import run_actor
+from resume.utils import analyze_job
 
 class ScraperStartView(generics.GenericAPIView):
     serializer_class = PullJobSerializer
@@ -27,6 +28,13 @@ class ScraperStartView(generics.GenericAPIView):
             )
         else:
             return Response(serializer.errors, status=http_status.HTTP_400_BAD_REQUEST)
+
+
+class ScraperGetView(generics.GenericAPIView):
+    def post(self, request):
+        data = request.data
+        run_id = data['runID']
+
 
 
 class JobPagination(PageNumberPagination):

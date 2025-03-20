@@ -1,6 +1,7 @@
 from django.conf import settings
 import openai
 import json
+import time
 from googleapiclient.discovery import build
 from google.oauth2 import service_account
 from resume.models import BaseResume
@@ -59,38 +60,67 @@ def analyze_job(job_title, job_description):
         return False
 
 
-def determine_keyword(job_title, job_description):
-    keywords = BaseResume.objects.values_list('keyword', flat='True')
-    keywords_str = "\n".join(keywords)
-
+def determine_base_resume(thread_id, job_title, job_description):
     prompt = f"""
-    Given the job title and job description below, choose the most relevant programming language or technology keyword from the list. The options are: Python, JavaScript, PHP, C++, Java, Ruby, SQL, HTML, CSS, and Go. Consider the skills, responsibilities, and tasks mentioned in the job description. Provide the most suitable keyword that aligns best with the job requirements.
+    This system is designed for Thomas Miller, who has multiple targeted resumes. Each resume focuses on a specific primary skill, such as Java, Python, etc. Thomas has at least ten targeted resumes, known as "Base Resumes," and sometimes up to twenty. These resumes reflect 24 years of experience and are stored in the Vector Store.
+
+    Given the job title and job description below, select the most appropriate "Base Resume" to use for the application.
+
     Job Title: {job_title}
-    Job Description: {job_description}
-    Possible Keywords:
-    {keywords_str}
+    ==Job Description==
+    {job_description}
+    === end job description===
 
-    **AI Response Format (JSON)**:
-    {{
-        "BestMatchedKeyword": "[Keyword from the list of Possible Keywords]"
-    }}
+    Return JSON with the following elements:
+
+    1) *BaseResumeFilename* – The filename in the Vector Store that best matches the provided job title and job description.
+
+    2) *Confidence* – A "Confidence Score" indicating how well the selected resume aligns with the job description.
+
+    3) *Keywords* – A concise list of relevant technical keywords, technologies, and industry jargon, separated by the | character.
+
+    4) *KeywordsExtended* – Go beyond the initial keyword list! Extract all relevant technical terms, jargon, programming languages, frameworks, and concepts related to the job description. Prioritize "quantity over quality."
+
+    5) *ExperienceGenerated* – Generate a brief paragraph summarizing relevant experience based on the technical and general requirements from the job description. Follow these guidelines:
+    - Do *not* use bullet points.
+    - Do *not* use the word "I."
+    - Maintain an "extreme brevity" writing style to match the format of the Base Resumes.
+    - Start the paragraph with: "Followed industry best practices to ensure high-quality project deliverables."
+    - Incorporate all technical terms from the *Keywords* section.
+    - Include at least three additional skills or capabilities that align with the job description but are not explicitly mentioned in it, to showcase added value.
+    - The tone should reflect the expertise of a *senior developer, engineer, or architect*.
+    - Do *not* state that Thomas has a computer science degree (he does not).
+    - Certifications are not relevant for this section.
+    - Ignore mentions of benefits in the job description.
+    - Use logical reasoning to tailor the paragraph to highlight the strongest match for the job requirements.
+
+    6) *JobTitle* – Generate a job title that closely resembles, but is *not an exact copy of*, the one provided in the job description. By default, include "Senior" unless the role specifically targets mid-level candidates.
     """
-
-    response = client.chat.completions.create(
-        model="gpt-4-turbo",
-        messages=[{"role": "system", "content": prompt}],
-        temperature=0
+    openai.beta.threads.messages.create(
+        thread_id=thread_id,
+        role="user",
+        content=prompt
     )
 
-    result = response.choices[0].message.content
-    try:
-        result = json.loads(result)
-        keyword = result["BestMatchedKeyword"]
-        base_resume = BaseResume.objects.filter(keyword=keyword).first()
-        return base_resume.keyword, base_resume.google_doc_id
-    except Exception as err:
-        print(f"determin_keyword error: {str(err)}")
-        return None
+    run = openai.beta.threads.runs.create(
+        thread_id=thread_id,
+        assistant_id=settings.ASSISTANT_ID
+    )
+
+    while True:
+        run_status = openai.beta.threads.runs.retrieve(thread_id=thread_id, run_id=run.id)
+        if run_status.status == "completed":
+            break
+        time.sleep(2)
+
+    messages = openai.beta.threads.messages.list(thread_id=thread_id)
+    for msg in reversed(messages.data):
+        if msg.role == "assistant":
+            result = msg.content[0].text.value.replace('json', '').replace('`', '')
+            result = json.loads(result)
+            return result
+
+    return None
 
 
 def create_new_doc(template_doc_id, title, experience):
@@ -113,8 +143,4 @@ def create_new_doc(template_doc_id, title, experience):
 
     print(f"New document created: https://docs.google.com/document/d/{new_doc_id}/edit")
 
-    return new_doc_id
-
-
-# def get_recommend_resume():
-#     vs_ODZUV1b8PfCctGDcL9Izt7Cp
+    return f'https://docs.google.com/document/d/{new_doc_id}/edit'
