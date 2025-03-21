@@ -168,7 +168,7 @@ def run_checker(history):
         # Check if same job is already scraped and added to database.
         new_job_result = JobBoardResult.objects.filter(job_url=job_url).first()
         if new_job_result:
-            logger.info('Job duplicated', job_url)
+            logger.info(f'Job duplicated: {job_url}')
             continue
         new_job_result = JobBoardResult(
             configuration=configuration,

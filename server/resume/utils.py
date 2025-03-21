@@ -118,6 +118,7 @@ def determine_base_resume(thread_id, job_title, job_description):
     messages = openai.beta.threads.messages.list(thread_id=thread_id)
     for msg in reversed(messages.data):
         if msg.role == "assistant":
+            print("========================", msg.content[0].text.value)
             result = msg.content[0].text.value.replace('json', '').replace('`', '')
             result = json.loads(result)
             return result

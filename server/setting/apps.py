@@ -8,7 +8,7 @@ def create_default_entry(sender, **kwargs):
         DataSource.objects.create(value='database')
 
     if not SupervisorStatus.objects.exists():
-        SupervisorStatus.objects.create(is_locked=False)    
+        SupervisorStatus.objects.create(is_locked=False)
 
 
 class SettingConfig(AppConfig):
