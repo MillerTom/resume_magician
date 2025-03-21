@@ -48,7 +48,7 @@ def run_actor(scraper, configuration, days=-1):
         }
 
     try:
-        logger.info("actor_id: ", actor_id)
+        logger.info(f"actor_id: {actor_id}")
         apify_key = ApifyKey.objects.first()
         APIFY_API_KEY = apify_key.value
         apify_client = CustomApifyClient(APIFY_API_KEY, actor_id)

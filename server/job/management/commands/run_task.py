@@ -44,7 +44,8 @@ class Command(BaseCommand):
             try:
                 started_at = row['c'][0]['v']
                 started_at = int(started_at)
-                logger.info(started_at, int(row['c'][1]['v']))
+                row_i = int(row['c'][1]['v'])
+                logger.info(f'{started_at} {row_i}')
                 if now - started_at > UNLOCK_SECONDS:
                     row_index = int(row['c'][1]['v']) + 1
                     sheet.update_cell(row_index, lockColumnIndex, '')

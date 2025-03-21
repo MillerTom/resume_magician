@@ -90,7 +90,7 @@ class JobApplyStartView(generics.GenericAPIView):
                 for row_index, row in enumerate(data['table']['rows']):
                     if row['c'][0]['v'] == job_url:
                         jobIndex = int(row['c'][1]['v']) + 1
-                        logger.error(jobIndex)
+                        logger.error(f'jobIndex: {jobIndex}')
                         sheet.update_cell(jobIndex, lockColumnIndex, 'locked')
                         sheet.update_cell(jobIndex, startedAtColumnIndex, str(now))
                         break

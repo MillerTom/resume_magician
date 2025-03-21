@@ -12,5 +12,5 @@ class Command(BaseCommand):
         for scraper in scrapers:
             configurations = scraper.scraper_configurations.filter(is_active=True)
             for configuration in configurations:
-                logger.info("* Running Configuration: ", configuration.url)
+                logger.info(f"* Running Configuration: {configuration.url}")
                 run_actor(scraper, configuration)
