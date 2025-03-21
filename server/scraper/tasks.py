@@ -2,6 +2,7 @@ from dateutil import parser
 from datetime import datetime
 import openai
 import json
+import pytz
 from scraper.models import ApifyKey, ScrapeHistory, JobBoardResult, JobBoardResume
 from scraper.utils import CustomApifyClient, get_datetime, is_valid_email, logger
 from resume.utils import analyze_job, determine_base_resume, create_new_doc
@@ -135,7 +136,7 @@ def run_checker(history):
                 external_apply_url = job.get('externalApplyLink', None)
                 is_easyapply = True if external_apply_url else False
                 postingDateParsed = job.get('postingDateParsed', '')
-                date_job_posted = parser.parse(postingDateParsed) if postingDateParsed else parser.parse(datetime.now())
+                date_job_posted = parser.parse(postingDateParsed, tzinfos={'UTC': pytz.utc}) if postingDateParsed else datetime.now(pytz.utc)
             elif configuration.scraper.name.lower() == 'dice':
                 job_title = job.get('title', '')
                 job_description = job.get('description', '')
@@ -152,7 +153,7 @@ def run_checker(history):
                 else:
                     is_easyapply = False
                 postingDateParsed = job.get('datePosted', '')
-                date_job_posted = parser.parse(postingDateParsed) if postingDateParsed else parser.parse(datetime.now())
+                date_job_posted = parser.parse(postingDateParsed, tzinfos={'UTC': pytz.utc}) if postingDateParsed else datetime.now(pytz.utc)
             elif configuration.scraper.name.lower() == 'linkedin':
                 job_title = job.get('title', '')
                 job_description = job.get('description', '')
@@ -164,7 +165,7 @@ def run_checker(history):
                 is_easyapply = True if job.get('applyType', '') == 'EASY_APPLY' else False
                 external_apply_url = job.get('applyUrl', None)
                 postingDateParsed = job.get('publishedAt', '')
-                date_job_posted = parser.parse(postingDateParsed) if postingDateParsed else parser.parse(datetime.now())
+                date_job_posted = parser.parse(postingDateParsed, tzinfos={'UTC': pytz.utc}) if postingDateParsed else datetime.now(pytz.utc)
 
             # Check if same job is already scraped and added to database.
             new_job_result = JobBoardResult.objects.filter(job_url=job_url).first()
