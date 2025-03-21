@@ -59,10 +59,50 @@ class JobBoardResult(models.Model):
     date_apply_started = models.DateTimeField(null=True)
     date_job_removed_from_site = models.DateTimeField(null=True)
     problem_applying_description = models.CharField(max_length=100, default='')
+    is_qualified = models.BooleanField(default=None, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:
         db_table = 'jobboard_results'
+
+
+class JobBoardResume(models.Model):
+    id=models.AutoField(primary_key=True)
+    configuration = models.ForeignKey(Configuration, related_name='configuration_job_resumes', on_delete=models.CASCADE, null=True)
+    job_title = models.CharField(max_length=220, default='')
+    job_description = models.TextField()
+    source = models.CharField(max_length=50, default='')
+    skill = models.CharField(max_length=220, default='')
+    date_resume_created = models.DateTimeField(null=True)
+    date_scraped = models.DateTimeField(null=True)
+    run_id = models.CharField(max_length=50, default='')
+    date_job_posted = models.DateTimeField(null=True)
+    salary = models.CharField(max_length=100, null=True)
+    job_type = models.CharField(max_length=50, default='')
+    company = models.CharField(max_length=100, default='')
+    location = models.CharField(max_length=100, default='')
+    job_url = models.URLField(max_length=500, null=True)
+    customized_resume_url = models.URLField(max_length=500, null=True)
+    applied_for_by = models.CharField(max_length=100, default='')
+    date_applied_for = models.DateTimeField(null=True)
+    general_notes = models.CharField(max_length=500, default='')
+    is_request_regeneration = models.BooleanField(default=False)
+    job_mismatch = models.BooleanField(default=False)
+    who_jd_mismatch = models.CharField(max_length=100, default='')
+    is_complex_form = models.BooleanField(default=False)
+    is_easyapply = models.BooleanField(default=False)
+    apply_status = models.CharField(max_length=100, default='')
+    failure_applying = models.IntegerField(default=0)
+    external_apply_url = models.URLField(max_length=500, null=True)
+    lock_application = models.BooleanField(default=False)
+    date_apply_started = models.DateTimeField(null=True)
+    date_job_removed_from_site = models.DateTimeField(null=True)
+    problem_applying_description = models.CharField(max_length=100, default='')
+    ai_response_job_analyzer = models.TextField(null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        db_table = 'jobboard_resumes'
 
 
 class ScrapeHistory(models.Model):
