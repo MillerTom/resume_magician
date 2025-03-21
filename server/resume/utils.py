@@ -13,7 +13,7 @@ client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
 
 # Google API credentials
 SCOPES = ["https://www.googleapis.com/auth/drive", "https://www.googleapis.com/auth/documents"]
-SERVICE_ACCOUNT_FILE = "/media/mon/Data/Upwork/ApplyJobForever/server/main/credentials.json"
+SERVICE_ACCOUNT_FILE = settings.CREDENTIALS_PATH
 
 # Authenticate with Google APIs
 creds = service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
