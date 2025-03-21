@@ -39,7 +39,7 @@ class JobBoardResult(models.Model):
     run_id = models.CharField(max_length=50, default='')
     date_job_posted = models.DateTimeField(null=True)
     salary = models.CharField(max_length=100, null=True)
-    job_type = models.CharField(max_length=50, default='')
+    job_type = models.CharField(max_length=50, default='', null=True)
     company = models.CharField(max_length=100, default='')
     location = models.CharField(max_length=100, default='')
     job_url = models.URLField(max_length=500, null=True)
