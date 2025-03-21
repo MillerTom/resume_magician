@@ -4,7 +4,9 @@ import json
 import time
 from googleapiclient.discovery import build
 from google.oauth2 import service_account
-from resume.models import BaseResume
+
+import logging
+logger = logging.getLogger(__name__)
 
 # OpenAI client
 client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
@@ -56,7 +58,7 @@ def analyze_job(job_title, job_description):
         is_qualified = result['JobIsQualified'] == "QUALIFIED"
         return is_qualified
     except Exception as err:
-        print(f"analyze_job error: {str(err)}")
+        logger.error(f"analyze_job error: {str(err)}")
         return False
 
 
@@ -124,7 +126,7 @@ def determine_base_resume(thread_id, job_title, job_description):
 
 
 def create_new_doc(template_doc_id, title, experience):
-    print(f"Start creating new Resume based on {template_doc_id}")
+    logger.info(f"Start creating new Resume based on {template_doc_id}")
     copy = drive_service.files().copy(
         fileId=template_doc_id,
         body={
@@ -141,6 +143,6 @@ def create_new_doc(template_doc_id, title, experience):
     
     docs_service.documents().batchUpdate(documentId=new_doc_id, body={"requests": requests}).execute()
 
-    print(f"New document created: https://docs.google.com/document/d/{new_doc_id}/edit")
+    logger.info(f"New resume: https://docs.google.com/document/d/{new_doc_id}/edit")
 
     return f'https://docs.google.com/document/d/{new_doc_id}/edit'

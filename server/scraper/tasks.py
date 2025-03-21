@@ -3,7 +3,7 @@ from datetime import datetime
 import openai
 import json
 from scraper.models import ApifyKey, ScrapeHistory, JobBoardResult, JobBoardResume
-from scraper.utils import CustomApifyClient, get_datetime, is_valid_email
+from scraper.utils import CustomApifyClient, get_datetime, is_valid_email, logger
 from resume.utils import analyze_job, determine_base_resume, create_new_doc
 from resume.models import BaseResume
 
@@ -48,12 +48,12 @@ def run_actor(scraper, configuration, days=-1):
         }
 
     try:
-        print("=== actor_id: ", actor_id)
+        logger.info("actor_id: ", actor_id)
         apify_key = ApifyKey.objects.first()
         APIFY_API_KEY = apify_key.value
         apify_client = CustomApifyClient(APIFY_API_KEY, actor_id)
         response = apify_client.start_actor(payload)
-        print(f'DatasetId: {response["defaultDatasetId"]}')
+        logger.info(f'DatasetId: {response["defaultDatasetId"]}')
 
         if scraper.name.lower() == 'ziprecruiter':
             price = response['usageTotalUsd']
@@ -75,7 +75,7 @@ def run_actor(scraper, configuration, days=-1):
         )
         history.save()
     except Exception as err:
-        print(f'=== run_actor error: {str(err)}')
+        logger.error(f'run_actor error: {str(err)}')
 
 
 def run_checker(history):
@@ -168,7 +168,7 @@ def run_checker(history):
         # Check if same job is already scraped and added to database.
         new_job_result = JobBoardResult.objects.filter(job_url=job_url).first()
         if new_job_result:
-            print('Job duplicated', job_url)
+            logger.info('Job duplicated', job_url)
             continue
         new_job_result = JobBoardResult(
             configuration=configuration,
@@ -191,13 +191,13 @@ def run_checker(history):
 
     # if history.status != SUCCEED_STATUS or number_of_jobs == 0:
     if number_of_jobs == 0:
-        print(f'Failed: {history.id}')
+        logger.info(f'Failed: {history.id}')
         if history.days == history.configuration.days:
             # Retry with modified number_of_days
             run_actor(scraper, configuration, configuration.days + 1)
     else:
         history.number_of_jobs = number_of_jobs
-        print(f'Succeed: {history.id} with ({number_of_jobs}jobs)')
+        logger.error(f'Succeed: {history.id} with ({number_of_jobs}jobs)')
 
 
 def run_qualifier(run_id):
@@ -230,7 +230,7 @@ def run_qualifier(run_id):
                     )
                     job_board_resume.save()
             except Exception as err:
-                print(f'run_qualifier error: {str(err)}')
+                logger.error(f'run_qualifier error: {str(err)}')
         priority += 1
 
 
@@ -259,4 +259,4 @@ def run_resume_maker(run_id):
             job_board_resume.customized_resume_url = customized_resume_url
             job_board_resume.save()
         except Exception as err:
-            print(f'run_resume_maker error: {str(err)}')
+            logger.error(f'run_resume_maker error: {str(err)}')

@@ -3,6 +3,9 @@ from functools import wraps
 from django.http import JsonResponse
 from django.conf import settings
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 def validate_access_token(token, tenant_id, client_id):
     # Decode and validate the token

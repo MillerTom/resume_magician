@@ -12,7 +12,7 @@ from dateutil import parser
 
 from auth.utils import is_authenticated
 from job.models import UserInfo, Job
-from job.utils import execute_gviz_query, get_job, get_bot_jobs
+from job.utils import execute_gviz_query, get_job, get_bot_jobs, logger
 from setting.utils import is_google_sheet
 from scraper.models import JobBoardResult
 
@@ -71,7 +71,7 @@ class GetJobRecordsView(generics.GenericAPIView):
                 })
             return Response({'job': job, 'backlog': backlog, 'leaderboard': leaderboard}, status=http_status.HTTP_200_OK)
         except Exception as err:
-            print(f'=== GetRecordError: {str(err)}')
+            logger.error(f'GetRecordError: {str(err)}')
             return Response(status=http_status.HTTP_404_NOT_FOUND)
 
 
@@ -90,7 +90,7 @@ class JobApplyStartView(generics.GenericAPIView):
                 for row_index, row in enumerate(data['table']['rows']):
                     if row['c'][0]['v'] == job_url:
                         jobIndex = int(row['c'][1]['v']) + 1
-                        print(jobIndex)
+                        logger.error(jobIndex)
                         sheet.update_cell(jobIndex, lockColumnIndex, 'locked')
                         sheet.update_cell(jobIndex, startedAtColumnIndex, str(now))
                         break
@@ -103,7 +103,7 @@ class JobApplyStartView(generics.GenericAPIView):
                 job.save()
                 return Response({'jobIndex': job.id}, status=http_status.HTTP_200_OK)
         except Exception as err:
-            print(f'=== JobApplyStartError: {str(err)}')
+            logger.error(f'JobApplyStartError: {str(err)}')
         return Response('Selected job not existing or locked', status=http_status.HTTP_404_NOT_FOUND)
 
 
@@ -137,7 +137,7 @@ class JobAppliedView(generics.GenericAPIView):
                 job.save()
             return Response(status=http_status.HTTP_200_OK)
         except Exception as err:
-            print(f'=== JobAppliedError: {str(err)}')
+            logger.error(f'JobAppliedError: {str(err)}')
             return Response(status=http_status.HTTP_400_BAD_REQUEST)
 
 
@@ -162,7 +162,7 @@ class JobRejectView(generics.GenericAPIView):
                 job.save()
             return Response(status=http_status.HTTP_200_OK)
         except Exception as err:
-            print(f'=== JobRejectError: {str(err)}')
+            logger.error(f'JobRejectError: {str(err)}')
             return Response(status=http_status.HTTP_400_BAD_REQUEST)
         
 
@@ -171,10 +171,11 @@ class GetBotJobsView(generics.GenericAPIView):
         try:
             data = request.data
             source = data['source']
+            logger.info(f'Get Bot Jobs ({source})')
             jobs = get_bot_jobs(source)
             return Response({'jobs': jobs}, status=http_status.HTTP_200_OK)
         except Exception as err:
-            print(f'=== JobBotApplyStart: {str(err)}')
+            logger.error(f'JobBotApplyStart: {str(err)}')
 
 
 class DownloadResumeView(generics.GenericAPIView):
@@ -196,23 +197,3 @@ class DownloadResumeView(generics.GenericAPIView):
         os.unlink(temp_file.name)
         
         return response
-    
-
-class AsyncRunView(generics.GenericAPIView):
-    def post(self, request):
-        data = request.data
-
-        import asyncio
-
-        async def task():
-            print('=== Start ===')
-            await asyncio.sleep(2)
-            print('=== End ===')
-
-        async def main():
-            asyncio.create_task(task())
-            print('=== Main ===')
-
-        asyncio.run(main())
-
-        return Response({'msg': 'hello world!'}, status=http_status.HTTP_200_OK)

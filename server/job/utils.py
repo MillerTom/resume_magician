@@ -5,6 +5,9 @@ from django.db.models import Q, F
 from setting.utils import is_google_sheet
 from scraper.models import JobBoardResume
 
+import logging
+logger = logging.getLogger(__name__)
+
 def execute_gviz_query(query):
     SHEET_ID = settings.SPREAD_SHEET_ID
     WORKSHEET_ID = settings.SHEET_ID
@@ -19,7 +22,7 @@ def execute_gviz_query(query):
         return data
 
     except Exception as e:
-        print(f"Error executing gViz query: {e}")
+        logger.error(f"Error executing gViz query: {e}")
         return None
     
 
@@ -109,7 +112,6 @@ def get_bot_jobs(source):
         ).order_by(
             'config_priority'
         )[:10]
-        print(job_board_resumes)
         for job_board_resume in job_board_resumes:
             jobs.append({
                 'id':               job_board_resume.id,

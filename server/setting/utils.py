@@ -1,5 +1,8 @@
 from setting.models import DataSource
 
+import logging
+logger = logging.getLogger(__name__)
+
 def get_datasource():
     datasource = DataSource.objects.first()
     if not datasource:

@@ -3,6 +3,9 @@ from datetime import datetime, timedelta
 import pytz
 import re
 
+import logging
+logger = logging.getLogger(__name__)
+
 def get_datetime(day):
     now_utc = datetime.now(pytz.utc)
     actual_date = now_utc - timedelta(days=day)

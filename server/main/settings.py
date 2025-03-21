@@ -181,6 +181,73 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+# Setup Logger
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{levelname} {asctime} {name} {module} - {message}",
+            "style": "{",
+        },
+        "simple": {
+            "format": "{levelname} {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "file": {
+            "level": "DEBUG",
+            "class": "logging.FileHandler",
+            "filename": os.path.join(BASE_DIR, "app.log"),
+            "formatter": "verbose",
+        },
+        "console": {
+            "level": "DEBUG",
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
+        },
+        "database": {
+            "level": "DEBUG",
+            "class": "setting.log_handlers.DatabaseLogHandler",
+            "formatter": "verbose",
+        },
+    },
+    "loggers": {
+        # "django": {
+        #     "handlers": ["file", "console"],
+        #     "level": "DEBUG",
+        #     "propagate": True,
+        # },
+        "auth": {
+            "handlers": ["file", "console", "database"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
+        "job": {
+            "handlers": ["file", "console", "database"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
+        "resume": {
+            "handlers": ["file", "console", "database"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
+        "scraper": {
+            "handlers": ["file", "console", "database"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
+        "setting": {
+            "handlers": ["file", "console", "database"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
+    },
+}
+
+
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 

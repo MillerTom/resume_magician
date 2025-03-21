@@ -5,7 +5,7 @@ import time
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from googleapiclient.discovery import build
-from job.utils import execute_gviz_query
+from job.utils import execute_gviz_query, logger
 from scraper.models import JobBoardResult
 
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
@@ -23,7 +23,7 @@ class Command(BaseCommand):
         # Check Google Sheet
         rows = []
         now = int(time.time())
-        print(f"=== Running task {str(now)}")
+        logger.info(f"*** Running task to check jobs ***")
         QUERY = (
             "SELECT AB, AG "
             "WHERE AA = 1"
@@ -37,21 +37,21 @@ class Command(BaseCommand):
         )
         data = execute_gviz_query(QUERY)
         rows.extend(data['table']['rows'])
-        print(f'--- fetched {len(rows)}')
+        logger.info(f'fetched {len(rows)}')
 
         sheet = client.open(settings.GOOGLE_SHEET_NAME).get_worksheet_by_id(settings.SHEET_ID)
         for row in data['table']['rows']:
             try:
                 started_at = row['c'][0]['v']
                 started_at = int(started_at)
-                print(started_at, int(row['c'][1]['v']))
+                logger.info(started_at, int(row['c'][1]['v']))
                 if now - started_at > UNLOCK_SECONDS:
                     row_index = int(row['c'][1]['v']) + 1
                     sheet.update_cell(row_index, lockColumnIndex, '')
                     sheet.update_cell(row_index, startedAtColumnIndex, '')
                     time.sleep(1)
             except Exception as err:
-                print(f'--- error in google sheet: {str(err)}')
+                logger.error(f'error in google sheet: {str(err)}')
 
         # Check PostgreSQL database
         jobs = JobBoardResult.objects.filter(
@@ -65,6 +65,6 @@ class Command(BaseCommand):
                     job.date_apply_started = None
                     job.lock_application = False
                     job.save()
-                    print(f'--- unlock job: {str(job.id)}')
+                    logger.info(f'unlock job: {str(job.id)}')
             except Exception as err:
-                print(f'--- error in database: {str(err)}')
+                logger.error(f'error in database: {str(err)}')

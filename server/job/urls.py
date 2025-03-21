@@ -6,7 +6,6 @@ from job.views import (
     JobRejectView,
     GetBotJobsView,
     DownloadResumeView,
-    AsyncRunView,
 )
 
 urlpatterns = [
@@ -16,5 +15,4 @@ urlpatterns = [
     path('reject/', JobRejectView.as_view(), name='job_reject'),
     path('get/bot/jobs/', GetBotJobsView.as_view(), name='get_bot_jobs'),
     path('download/resume/', DownloadResumeView.as_view(), name='download_resume'),
-    path('async/run/', AsyncRunView.as_view(), name='async_run'),
 ]
