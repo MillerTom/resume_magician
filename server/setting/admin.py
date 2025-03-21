@@ -1,3 +1,4 @@
 from django.contrib import admin
+from setting.models import DataSource
 
-# Register your models here.
+admin.site.register(DataSource)
