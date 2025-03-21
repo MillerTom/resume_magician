@@ -2,7 +2,6 @@ from rest_framework.response import Response
 from rest_framework import generics, status as http_status
 from django.conf import settings
 from django.http import FileResponse
-from django.db.models import Q, F
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from googleapiclient.discovery import build
@@ -14,7 +13,7 @@ from auth.utils import is_authenticated
 from job.models import UserInfo, Job
 from job.utils import execute_gviz_query, get_job, get_bot_jobs, logger
 from setting.utils import is_google_sheet
-from scraper.models import JobBoardResult
+from scraper.models import JobBoardResume
 
 scope = [
     "https://spreadsheets.google.com/feeds",
@@ -52,7 +51,7 @@ class GetJobRecordsView(generics.GenericAPIView):
                 skills = [x['c'][0]['v'] for x in skills]
                 unique_skills = list(set(skills))
             else:
-                skills = JobBoardResult.objects.values_list('skill', flat=True)
+                skills = JobBoardResume.objects.values_list('skill', flat=True)
                 skills = list(skills)
 
             unique_skills = list(set(skills))
@@ -97,7 +96,7 @@ class JobApplyStartView(generics.GenericAPIView):
                 if jobIndex >= 0:
                     return Response({'jobIndex': jobIndex}, status=http_status.HTTP_200_OK)
             else:
-                job = JobBoardResult.objects.filter(job_url=job_url).first()
+                job = JobBoardResume.objects.filter(job_url=job_url).first()
                 job.date_apply_started = datetime.now()
                 job.lock_application = True
                 job.save()
@@ -132,7 +131,7 @@ class JobAppliedView(generics.GenericAPIView):
                 now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 sheet.update_cell(job_index, appliedForDateColumnIndex, now)
             else:
-                job = JobBoardResult.objects.filter(id=job_index).first()
+                job = JobBoardResume.objects.filter(id=job_index).first()
                 job.date_applied_for = datetime.now()
                 job.save()
             return Response(status=http_status.HTTP_200_OK)
@@ -157,7 +156,7 @@ class JobRejectView(generics.GenericAPIView):
                         job_index = int(row['c'][1]['v']) + 1
                         sheet.update_cell(job_index, problemApplyingColumnIndex, reject_reason)
             else:
-                job = JobBoardResult.objects.filter(job_url=job_url).first()
+                job = JobBoardResume.objects.filter(job_url=job_url).first()
                 job.problem_applying_description = reject_reason
                 job.save()
             return Response(status=http_status.HTTP_200_OK)

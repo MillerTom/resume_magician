@@ -261,6 +261,7 @@ def run_resume_maker(run_id):
             # Recreate Resume using Base Resume
             customized_resume_url = create_new_doc(base_resume.google_doc_id, generated_title, generated_experience)
             job_board_resume.customized_resume_url = customized_resume_url
+            job_board_resume.date_resume_created = datetime.now(pytz.utc)
             job_board_resume.save()
         except Exception as err:
             logger.error(f'run_resume_maker error: {str(err)}')
