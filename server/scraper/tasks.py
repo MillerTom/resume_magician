@@ -172,7 +172,6 @@ def run_checker(history):
             if new_job_result:
                 logger.info(f'Job duplicated: {job_url}')
                 continue
-            print("-----------------", date_job_posted)
             new_job_result = JobBoardResult(
                 configuration=configuration,
                 job_title=job_title,

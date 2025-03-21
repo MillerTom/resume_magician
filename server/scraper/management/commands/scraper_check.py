@@ -14,7 +14,6 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         logger.info('*** Running Scraper Check ***')
         supervisor_status = SupervisorStatus.objects.first()
-        print("==========", supervisor_status.is_locked)
         if supervisor_status.is_locked: return
         supervisor_status.is_locked = True
         supervisor_status.save()
